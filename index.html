@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SimLab — Blender 5.3 Tutorials by Category</title>
+<style>
+  :root{
+    --bg:#0f1116;
+    --panel:#161a21;
+    --panel-2:#1c2129;
+    --panel-3:#232a35;
+    --line:#2a3140;
+    --text:#e8ecf3;
+    --muted:#8b95a7;
+    --accent:#f59e0b;
+    --accent-2:#ff7a00;
+    --blue:#60a5fa;
+    --green:#34d399;
+    --red:#f87171;
+    --radius:14px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1100px 520px at 82% -12%, #1e2634 0%, rgba(30,38,52,0) 62%),
+      radial-gradient(900px 480px at -10% 100%, #1a1f2a 0%, rgba(26,31,42,0) 60%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+    font-size:15px;
+    line-height:1.62;
+  }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:60;
+    display:flex; align-items:center; justify-content:space-between; gap:18px;
+    padding:11px 22px; min-height:56px;
+    background:rgba(15,17,22,.86);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:11px; font-weight:800; letter-spacing:-.02em; font-size:19px;}
+  .logo{
+    display:grid; place-items:center;
+    width:32px; height:32px; border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#1a1206; font-size:17px; font-weight:900;
+    box-shadow:0 6px 18px rgba(245,158,11,.32);
+  }
+  .brand .sub{font-size:12px; font-weight:500; color:var(--muted); letter-spacing:.02em; border-left:1px solid var(--line); padding-left:11px; margin-left:2px;}
+
+  .actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .gp{display:flex; flex-direction:column; gap:4px; margin-right:6px;}
+  .gp-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); font-weight:700;}
+  .gp-bar{width:170px; height:8px; border-radius:99px; background:var(--panel-3); overflow:hidden;}
+  .gp-bar i{display:block; height:100%; width:0%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .45s cubic-bezier(.2,.9,.3,1); box-shadow:0 0 12px rgba(245,158,11,.55);}
+
+  .btn{
+    font:inherit; font-size:13px; font-weight:600;
+    padding:8px 14px; border-radius:10px; cursor:pointer;
+    border:1px solid var(--line); background:var(--panel-2); color:var(--text);
+    transition:.16s ease; white-space:nowrap;
+  }
+  .btn:hover{ border-color:#3a4457; background:var(--panel-3); transform:translateY(-1px); }
+  .btn:active{ transform:translateY(0); }
+  .btn.danger:hover{ border-color:rgba(248,113,113,.6); color:var(--red); }
+
+  /* ---------- TAB BAR ---------- */
+  .tabbar{
+    position:sticky; top:56px; z-index:50;
+    display:flex; align-items:center; gap:6px;
+    padding:9px 22px; min-height:52px;
+    background:rgba(15,17,22,.9);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+    scrollbar-width:thin;
+    scrollbar-color:#2c3444 transparent;
+  }
+  .tabbar::-webkit-scrollbar{height:6px;}
+  .tabbar::-webkit-scrollbar-thumb{background:#2c3444;border-radius:99px;}
+  .tabbar::-webkit-scrollbar-track{background:transparent;}
+
+  .tab{
+    display:flex; align-items:center; gap:8px;
+    padding:8px 13px; border-radius:10px;
+    border:1px solid transparent; background:transparent;
+    color:var(--muted); font:inherit; font-weight:700; font-size:13px;
+    cursor:pointer; white-space:nowrap;
+    transition:.16s ease; flex:0 0 auto;
+  }
+  .tab:hover{ background:var(--panel-2); color:var(--text); }
+  .tab.active{
+    background:linear-gradient(180deg, rgba(245,158,11,.15), rgba(245,158,11,.05));
+    border-color:rgba(245,158,11,.5);
+    color:var(--text);
+    box-shadow:inset 0 0 0 1px rgba(245,158,11,.15);
+  }
+  .tab-emoji{ font-size:15px; }
+  .tab-count{
+    font-size:10.5px; padding:1px 7px; border-radius:99px;
+    background:var(--panel-3); color:var(--muted); font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+  .tab.active .tab-count{ background:rgba(245,158,11,.22); color:var(--accent); }
+  .tab.complete .tab-count{ background:rgba(52,211,153,.22); color:var(--green); }
+
+  /* ---------- LAYOUT ---------- */
+  .layout{display:grid; grid-template-columns:328px minmax(0,1fr); align-items:start;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    position:sticky; top:108px; height:calc(100vh - 108px); overflow-y:auto;
+    border-right:1px solid var(--line);
+    padding:18px 14px 40px;
+    background:rgba(22,26,33,.5);
+  }
+  .sidebar::-webkit-scrollbar{width:9px;}
+  .sidebar::-webkit-scrollbar-thumb{background:#2c3444;border-radius:99px;}
+  .sidebar::-webkit-scrollbar-track{background:transparent;}
+
+  .search-wrap{position:relative; margin-bottom:14px;}
+  .search-wrap input{
+    width:100%; font:inherit; font-size:13.5px;
+    padding:10px 12px 10px 34px;
+    border-radius:10px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--text);
+    outline:none; transition:.16s;
+  }
+  .search-wrap input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(245,158,11,.14); }
+  .search-wrap input::placeholder{ color:#6b7488; }
+  .search-wrap::before{content:"⌕"; position:absolute; left:12px; top:50%; transform:translateY(-52%); color:var(--muted); font-size:16px; pointer-events:none;}
+
+  .side-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); font-weight:800; margin:0 4px 9px;}
+
+  .nav-item{
+    display:flex; gap:11px; width:100%; text-align:left;
+    padding:11px 11px 12px; margin-bottom:7px;
+    border-radius:12px; border:1px solid transparent;
+    background:transparent; color:var(--text); font:inherit; cursor:pointer;
+    transition:.16s ease;
+  }
+  .nav-item:hover{ background:var(--panel-2); border-color:var(--line); }
+  .nav-item.active{ background:linear-gradient(180deg, rgba(245,158,11,.13), rgba(245,158,11,.05)); border-color:rgba(245,158,11,.45); box-shadow:inset 0 0 0 1px rgba(245,158,11,.1); }
+  .nav-emoji{ font-size:19px; line-height:1.35; flex:0 0 auto; }
+  .nav-main{ flex:1 1 auto; min-width:0; }
+  .nav-title{ display:block; font-size:13.5px; font-weight:700; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .nav-meta{ display:block; font-size:11px; color:var(--muted); margin-top:2px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .nav-bar{ display:block; height:4px; border-radius:99px; background:var(--panel-3); margin-top:7px; overflow:hidden; }
+  .nav-bar i{ display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .4s ease; }
+  .nav-check{ align-self:center; color:var(--green); font-weight:900; font-size:15px; }
+  .empty{ color:var(--muted); font-size:13px; padding:14px 6px; }
+
+  .side-foot{ margin-top:16px; padding:12px; border-radius:12px; border:1px dashed var(--line); font-size:11.5px; color:var(--muted); line-height:1.55; }
+  .side-foot b{ color:var(--text); }
+
+  /* ---------- MAIN ---------- */
+  main{ padding:30px 36px 90px; max-width:920px; width:100%; }
+  .tut-head{ display:flex; gap:16px; align-items:flex-start; margin-bottom:6px; }
+  .tut-emoji{
+    font-size:30px; line-height:1; flex:0 0 auto;
+    width:62px; height:62px; border-radius:18px;
+    display:grid; place-items:center;
+    background:linear-gradient(145deg, #212836, #171b23);
+    border:1px solid var(--line);
+    box-shadow:0 10px 26px rgba(0,0,0,.32);
+  }
+  h1{ margin:0 0 8px; font-size:29px; line-height:1.16; letter-spacing:-.028em; font-weight:800; }
+  .chips{ display:flex; flex-wrap:wrap; gap:7px; }
+  .chip{
+    font-size:11px; font-weight:700; letter-spacing:.03em;
+    padding:3.5px 10px; border-radius:99px;
+    background:var(--panel-2); border:1px solid var(--line); color:var(--muted);
+    text-transform:uppercase;
+  }
+  .chip.lvl-beginner{ color:#6ee7b7; border-color:rgba(52,211,153,.35); background:rgba(52,211,153,.09); }
+  .chip.lvl-intermediate{ color:#fcd34d; border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.09); }
+
+  .summary{ color:#b9c2d2; font-size:15.5px; margin:14px 0 22px; max-width:70ch; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; }
+  .card h3{ margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); font-weight:800; }
+  .card ul{ margin:0; padding-left:18px; }
+  .card li{ margin-bottom:6px; font-size:13.5px; color:#c3cbd8; }
+  .card li:last-child{ margin-bottom:0; }
+
+  .prog-line{ display:flex; align-items:center; gap:14px; margin:4px 0 20px; }
+  .prog-bar{ flex:1 1 auto; height:10px; border-radius:99px; background:var(--panel-3); overflow:hidden; border:1px solid var(--line); }
+  .prog-bar i{ display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .45s cubic-bezier(.2,.9,.3,1); box-shadow:0 0 14px rgba(245,158,11,.45); }
+  .prog-line span{ font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; }
+
+  /* ---------- STEPS ---------- */
+  .steps{ list-style:none; margin:0; padding:0; }
+  .step{
+    display:flex; gap:15px; align-items:flex-start;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:17px 19px 18px; margin-bottom:12px;
+    transition:.2s ease;
+  }
+  .step:hover{ border-color:#39435a; }
+  .step.done{ border-color:rgba(52,211,153,.34); background:linear-gradient(180deg, rgba(52,211,153,.045), rgba(52,211,153,0)); }
+
+  .tick{
+    flex:0 0 auto; width:34px; height:34px; margin-top:1px;
+    border-radius:50%; border:2px solid var(--line);
+    background:var(--panel-2); color:var(--accent);
+    font-size:16px; font-weight:900; line-height:1; cursor:pointer;
+    display:grid; place-items:center; padding:0;
+    transition:.18s ease;
+  }
+  .tick:hover{ border-color:var(--accent); transform:scale(1.09); }
+  .step.done .tick{ background:var(--green); border-color:var(--green); color:#06130d; box-shadow:0 0 16px rgba(52,211,153,.42); }
+
+  .step-body{ flex:1 1 auto; min-width:0; }
+  .step-body h4{
+    margin:0 0 9px; font-size:15.5px; font-weight:750; letter-spacing:-.012em;
+    display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  }
+  .step.done .step-body h4{ color:#93a0b4; }
+  .n{
+    display:inline-grid; place-items:center;
+    width:25px; height:25px; border-radius:8px; flex:0 0 auto;
+    background:rgba(245,158,11,.14); color:var(--accent);
+    font-size:12.5px; font-weight:800;
+  }
+  .txt{ color:#c3cbd8; font-size:14.2px; }
+  .txt b{ color:#eef2f8; font-weight:700; }
+  .txt ol, .txt ul{ margin:8px 0 4px; padding-left:22px; }
+  .txt li{ margin-bottom:6px; }
+
+  ol.doit, ul.doit{ margin:8px 0 4px; padding-left:24px; }
+  ol.doit li, ul.doit li{ margin-bottom:7px; color:#c3cbd8; font-size:14.2px; line-height:1.58; }
+  ol.doit li:last-child, ul.doit li:last-child{ margin-bottom:0; }
+
+  kbd{
+    display:inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:11.8px; font-weight:700;
+    padding:2px 6px; margin:0 1px;
+    border-radius:6px;
+    background:#2a3241; border:1px solid #3a4457; border-bottom-width:2px;
+    color:#ffd9a0; white-space:nowrap; line-height:1.5;
+  }
+
+  .note{ margin-top:11px; padding:10px 13px; border-radius:10px; font-size:13.2px; line-height:1.55; border-left:3px solid; }
+  .note b{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px; }
+  .note.tip{ background:rgba(52,211,153,.07); border-color:var(--green); color:#a7e8cd; }
+  .note.tip b{ color:var(--green); }
+  .note.warn{ background:rgba(248,113,113,.07); border-color:var(--red); color:#f2b3b3; }
+  .note.warn b{ color:var(--red); }
+  .note.see{ background:rgba(96,165,250,.08); border-color:var(--blue); color:#bfdbfe; }
+  .note.see b{ color:var(--blue); }
+
+  .uimap{
+    background:#10141b;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:12px;
+    line-height:1.5;
+    color:#8fa1b8;
+    white-space:pre;
+    overflow-x:auto;
+    margin:12px 0 4px;
+  }
+
+  /* ---------- FINISH ---------- */
+  .finish{ margin-top:22px; padding:20px 22px; border-radius:var(--radius); background:linear-gradient(140deg, rgba(245,158,11,.11), rgba(255,122,0,.03)); border:1px solid rgba(245,158,11,.35); }
+  .finish h3{ margin:0 0 11px; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); font-weight:800; }
+  .finish ul{ margin:0; padding-left:19px; }
+  .finish li{ margin-bottom:7px; font-size:14px; color:#d3dae6; }
+  .finish li:last-child{ margin-bottom:0; }
+
+  .tutnav{ display:flex; justify-content:space-between; gap:12px; margin-top:26px; flex-wrap:wrap; }
+  .hint{ margin-top:34px; text-align:center; font-size:11.5px; color:#5d6678; letter-spacing:.03em; }
+
+  /* ---------- TOAST ---------- */
+  #toast{
+    position:fixed; left:50%; bottom:28px;
+    transform:translate(-50%, 160%);
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#1a1206; font-weight:800; font-size:14.5px;
+    padding:14px 26px; border-radius:14px;
+    box-shadow:0 20px 46px rgba(245,158,11,.4);
+    transition: transform .5s cubic-bezier(.2,1.25,.35,1);
+    z-index:250; pointer-events:none; max-width:88vw; text-align:center;
+  }
+  #toast.show{ transform:translate(-50%, 0); }
+
+  /* ---------- MODAL ---------- */
+  .modal-backdrop{ position:fixed; inset:0; z-index:300; background:rgba(6,8,12,.72); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); display:none; place-items:center; padding:22px; }
+  .modal-backdrop.open{ display:grid; }
+  .modal{ background:var(--panel); border:1px solid var(--line); border-radius:18px; width:100%; max-width:720px; max-height:86vh; overflow:auto; padding:26px 28px 30px; box-shadow:0 30px 80px rgba(0,0,0,.6); animation: pop .28s cubic-bezier(.2,1.2,.35,1); }
+  @keyframes pop{ from{ transform:scale(.95); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .modal h2{ margin:0 0 4px; font-size:21px; letter-spacing:-.02em; }
+  .modal p.sub{ margin:0 0 20px; color:var(--muted); font-size:13.5px; }
+  .cheat{ display:grid; grid-template-columns:1fr 1fr; gap:10px 22px; }
+  .cheat div{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px 0; border-bottom:1px dashed #262e3b; font-size:13.2px; }
+  .cheat div span:last-child{ text-align:right; flex:0 0 auto; }
+  .modal-close{ margin-top:22px; width:100%; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px){
+    .layout{ grid-template-columns:1fr; }
+    .tabbar{ position:static; padding:9px 14px; }
+    .sidebar{ position:static; height:auto; max-height:none; border-right:none; border-bottom:1px solid var(--line); }
+    main{ padding:22px 18px 80px; }
+    .grid2{ grid-template-columns:1fr; }
+    h1{ font-size:24px; }
+    .brand .sub{ display:none; }
+    .gp-bar{ width:110px; }
+    .cheat{ grid-template-columns:1fr; }
+    .uimap{ font-size:10.5px; }
+  }
+
+  @media print{
+    .topbar, .tabbar, .sidebar, .tutnav, .hint, #toast, .modal-backdrop{ display:none !important; }
+    body{ background:#fff; color:#000; }
+    .layout{ display:block; }
+    main{ padding:0; max-width:none; }
+    .step, .card, .finish{ border:1px solid #ccc; background:#fff !important; page-break-inside:avoid; }
+    .txt, .step-body h4, .card li, .finish li, .doit li{ color:#111 !important; }
+    kbd{ background:#eee; border-color:#bbb; color:#000; }
+    .tick{ border-color:#999; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= TOP BAR ======================= -->
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">◉</span>
+    SimLab
+    <span class="sub">Blender 5.3 Tutorials by Category</span>
+  </div>
+  <div class="actions">
+    <div class="gp">
+      <div class="gp-label">Overall progress</div>
+      <div class="gp-bar"><i id="gpFill"></i></div>
+    </div>
+    <button class="btn" id="cheatBtn">⌨ Shortcuts</button>
+    <button class="btn" id="printBtn">🖨 Print</button>
+    <button class="btn danger" id="resetBtn">↺ Reset</button>
+  </div>
+</header>
+
+<!-- ======================= TAB BAR ======================= -->
+<nav class="tabbar" id="tabbar"></nav>
+
+<!-- ======================= LAYOUT ======================= -->
+<div class="layout">
+  <aside class="sidebar">
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="Search all tutorials… (press /)" autocomplete="off">
+    </div>
+    <div class="side-label" id="sideLabel">Tutorials</div>
+    <nav id="list"></nav>
+    <div class="side-foot">
+      <b>Tabs above</b> switch between categories. Search scans all categories — clicking a result will jump to its tab. Your progress is saved automatically.
+    </div>
+  </aside>
+
+  <main id="main"></main>
+</div>
+
+<!-- ======================= TOAST ======================= -->
+<div id="toast"></div>
+
+<!-- ======================= SHORTCUT MODAL ======================= -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Blender shortcuts">
+    <h2>⌨ Blender Survival Kit</h2>
+    <p class="sub">The only keyboard shortcuts you need for every tutorial on this page.</p>
+    <div class="cheat">
+      <div><span>Orbit the view</span><span><kbd>MMB</kbd> drag</span></div>
+      <div><span>Pan the view</span><span><kbd>Shift</kbd>+<kbd>MMB</kbd></span></div>
+      <div><span>Zoom</span><span><kbd>Scroll</kbd></span></div>
+      <div><span>Select</span><span><kbd>LMB</kbd></span></div>
+      <div><span>Add multi-select</span><span><kbd>Shift</kbd>+<kbd>LMB</kbd></span></div>
+      <div><span>Select all / none</span><span><kbd>A</kbd> / <kbd>Alt</kbd>+<kbd>A</kbd></span></div>
+      <div><span>Move</span><span><kbd>G</kbd> then <kbd>X</kbd>/<kbd>Y</kbd>/<kbd>Z</kbd></span></div>
+      <div><span>Rotate</span><span><kbd>R</kbd> then axis</span></div>
+      <div><span>Scale</span><span><kbd>S</kbd> then axis</span></div>
+      <div><span>Type an exact value</span><span>just type the number</span></div>
+      <div><span>Confirm an action</span><span><kbd>Enter</kbd></span></div>
+      <div><span>Cancel an action</span><span><kbd>Esc</kbd> or right-click</span></div>
+      <div><span>Add object</span><span><kbd>Shift</kbd>+<kbd>A</kbd></span></div>
+      <div><span>Delete</span><span><kbd>X</kbd></span></div>
+      <div><span>Undo</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd></span></div>
+      <div><span>Edit Mode toggle</span><span><kbd>Tab</kbd></span></div>
+      <div><span>Frame selected</span><span><kbd>Numpad .</kbd></span></div>
+      <div><span>Play / pause timeline</span><span><kbd>Spacebar</kbd></span></div>
+      <div><span>Render the frame</span><span><kbd>F12</kbd></span></div>
+      <div><span>Repeat last action</span><span><kbd>Shift</kbd>+<kbd>R</kbd></span></div>
+      <div><span>Inset face</span><span><kbd>I</kbd></span></div>
+      <div><span>Extrude</span><span><kbd>E</kbd></span></div>
+      <div><span>Bevel</span><span><kbd>Ctrl</kbd>+<kbd>B</kbd></span></div>
+      <div><span>Insert keyframe</span><span><kbd>I</kbd> (in viewport)</span></div>
+    </div>
+    <button class="btn modal-close" id="modalClose">Got it — back to the tutorials</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   1. CATEGORIES (TABS)
+   ========================================================================= */
+
+const CATEGORIES = [
+  { id: "start",  label: "Start Here",   emoji: "🚀" },
+  { id: "sculpt", label: "Sculpting",    emoji: "🗿" },
+  { id: "model",  label: "Modeling",     emoji: "🧱" },
+  { id: "shade",  label: "Shading",      emoji: "🎨" },
+  { id: "anim",   label: "Animation",    emoji: "🎬" },
+  { id: "sim",    label: "Simulations",  emoji: "💫" }
+];
+
+/* =========================================================================
+   2. TUTORIALS
+   ========================================================================= */
+
+const TUTORIALS = [
+
+/* ============================== START HERE ============================== */
+
+{
+  id: "ui", tab: "start", emoji: "🖥",
+  title: "Meet Blender 5.3's Screen",
+  category: "Orientation", level: "Beginner", minutes: 5, version: "Blender 5.3.0",
+  summary: "Before touching anything else, you need to know where things are. Blender 5.3's screen has four main areas. Once you can find them, you can follow every tutorial on this site.",
+  build: ["The four areas of Blender's screen","How to move around the 3D view","How to select and deselect objects","Where the properties panel lives in 5.3"],
+  before: ["If you haven't installed Blender yet: go to <b>blender.org/download</b>, grab the newest stable version (5.3 or newer), and install it. Open it — you'll see the default screen with a cube, a camera and a light.","If you're on a laptop without a mouse: open <b>Edit ▸ Preferences ▸ Input</b> and tick <b>Emulate 3 Button Mouse</b>. This lets you navigate with <kbd>Alt</kbd>+<kbd>LMB</kbd>.","Blender 5.3 dropped OpenGL support — Vulkan or Metal is required. Most modern machines are fine."],
+  steps: [
+    { t: "Find the four areas of the screen",
+      b: `Look at your Blender window. It is divided into four main regions:
+        <div class="uimap">┌──────────────────────────────────────────────────────────┐
+│  TOP MENU BAR  (File · Edit · Render · Window · Help)   │
+├───────────────────────────────────────────┬──────────────┤
+│                                           │  OUTLINER    │
+│                                           │  (object     │
+│         3D VIEWPORT                       │   list)      │
+│         (big grey area where              │              │
+│          you build things)                ├──────────────┤
+│                                           │  PROPERTIES  │
+│                                           │  (column of  │
+│                                           │   icons on   │
+│                                           │   the right) │
+├───────────────────────────────────────────┴──────────────┤
+│  TIMELINE  (row of numbers: 1, 10, 20, 30 …)            │
+└──────────────────────────────────────────────────────────┘</div>`,
+      see: "Your Blender window matches this layout — big grey area in the middle, list on the top right, icon column on the bottom right, numbers along the bottom." },
+    { t: "Move around the 3D Viewport",
+      b: `<ol class="doit">
+          <li><b>Orbit:</b> hold the <b>middle mouse button</b> (the scroll wheel) and drag.</li>
+          <li><b>Pan:</b> hold <kbd>Shift</kbd> and the middle mouse button and drag.</li>
+          <li><b>Zoom:</b> scroll the mouse wheel up and down.</li>
+        </ol>`,
+      see: "The cube, camera and light move around in the view. The objects themselves don't move — only your camera does." },
+    { t: "Select and deselect objects",
+      b: `In the 3D Viewport, <b>left-click the cube</b>. It gets a bright orange outline — that means it's selected. Now <b>left-click empty space</b> (the grey background far from the cube). The orange outline disappears.`,
+      see: "Clicking an object turns its outline orange. Clicking empty space removes all selections.",
+      tip: "Orange outline = selected. If a button isn't working, the first thing to check is: is the right object actually selected?",
+      warn: "If you can't select the cube, check the top-left of the viewport says <b>Object Mode</b>. If it says <b>Edit Mode</b>, press <kbd>Tab</kbd>." },
+    { t: "Find the Properties panel and its icons",
+      b: `Look at the bottom-right of the screen. There's a vertical column of small icons, and a large panel to their right. Hover each icon to see its name. The four you'll use most:
+        <ul class="doit">
+          <li><b>Object Properties</b> (orange square) — basic info about the selected object</li>
+          <li><b>Modifier Properties</b> (blue wrench) — Ocean, Subdivision, Solidify live here</li>
+          <li><b>Particle Properties</b> (cluster-of-dots) — fireflies, flocks, fur</li>
+          <li><b>Physics Properties</b> (ball with a curved trail) — cloth, rigid body, fluid, smoke, soft body</li>
+        </ul>`,
+      see: "Hovering each icon shows a tooltip with its name.",
+      tip: "Memorise <b>Physics = ball with a trail</b>. That one icon unlocks every simulation in Blender." },
+    { t: "Try the timeline",
+      b: `At the bottom of the screen you see numbers: <b>1, 10, 20, 30…</b>. This is the <b>Timeline</b>. Press <kbd>Spacebar</kbd> — the playhead moves. Press <kbd>Spacebar</kbd> again to stop.`,
+      see: "The playhead slides along the timeline when you press Spacebar. Nothing else happens because there's no animation yet.",
+      tip: "One second of video is usually 24 frames." },
+    { t: "Practice: select the light, hide the cube",
+      b: `<ol class="doit">
+          <li>Click the <b>light</b> — orange outline.</li>
+          <li>Click the <b>cube</b>, press <kbd>X</kbd> and <kbd>Enter</kbd>.</li>
+          <li>Press <kbd>Ctrl</kbd>+<kbd>Z</kbd> to undo.</li>
+        </ol>`,
+      see: "You can delete and undo freely. Nothing you do here breaks the file.",
+      tip: "<kbd>Ctrl</kbd>+<kbd>Z</kbd> is your best friend." }
+  ],
+  finish: ["You now know everything you need to follow any tutorial on this site.","Next: <b>🔧 Troubleshooting</b> — bookmark it for quick fixes.","Then: <b>🗿 Blob Monster</b> to jump into sculpting, or <b>🏁 Wave the Flag</b> for a gentle simulation intro."]
+},
+
+{
+  id: "troubleshoot", tab: "start", emoji: "🔧",
+  title: "Troubleshooting",
+  category: "Diagnostics", level: "Beginner", minutes: 10, version: "Blender 5.3.0",
+  summary: "When something doesn't work, 90% of the time it's one of these ten things. Work through the checklist before touching any settings — you'll usually fix it in under a minute.",
+  build: ["The universal checklist","Category-specific fixes","Blender 5.3-specific gotchas","When to bake and when to delete a bake"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Keep this open in a second tab while you work.","If you're completely stuck, the answer is almost always in step 1 or step 2."],
+  steps: [
+    { t: "The universal checklist — check these five things first",
+      b: `<ol class="doit">
+          <li><b>Is the right object selected?</b> Click it — its outline must be orange.</li>
+          <li><b>Are you in the right mode?</b> The top-left of the viewport must say <b>Object Mode</b> (or <b>Sculpt Mode</b> / <b>Edit Mode</b> if that's what the tutorial calls for).</li>
+          <li><b>Did you press Play?</b> Simulations don't run until you press <kbd>Spacebar</kbd> or scrub the timeline.</li>
+          <li><b>Did you bake?</b> Many simulations need to be baked before they render correctly.</li>
+          <li><b>Did you delete the old bake?</b> Blender does <b>not</b> update a cache automatically.</li>
+        </ol>`,
+      see: "Object selected, correct mode, pressed Play, baked, deleted old bake before re-baking.",
+      warn: "If you changed a setting and nothing happened, it's almost certainly a forgotten old bake." },
+    { t: "Cloth, soft body, fluid, smoke — quick fixes",
+      b: `<ul class="doit">
+          <li><b>Cloth / soft body falls through the floor:</b> The floor needs a <b>Collision</b> modifier (Physics ▸ Collision), not a rigid body.</li>
+          <li><b>Cloth doesn't move:</b> Check <b>Pin Group</b> isn't the entire mesh. Pin only one edge.</li>
+          <li><b>Fluid water doesn't appear:</b> The flow object must be <b>fully inside</b> the domain.</li>
+          <li><b>Fluid water escapes:</b> Domain is too small. Scale it up, delete the bake, re-bake.</li>
+          <li><b>Smoke invisible:</b> Select the domain and enable <b>Viewport Display ▸ Slice</b>.</li>
+          <li><b>Smoke renders as grey cube:</b> Volume is connected to Surface instead of Volume. Reconnect to Volume.</li>
+        </ul>`,
+      see: "The simulation behaves as expected." },
+    { t: "The #1 forgotten setting: Collision vs Rigid Body",
+      b: `These are <b>not</b> the same thing:
+        <ul class="doit">
+          <li><b>Cloth & Soft Body</b> → collide with objects that have <b>Collision</b> (Physics ▸ Collision).</li>
+          <li><b>Rigid Body</b> → collide with objects that have <b>Rigid Body ▸ Passive</b>.</li>
+          <li><b>Fluid</b> → collides with objects that have <b>Fluid ▸ Effector</b>.</li>
+        </ul>`,
+      tip: "Write this on a sticky note: <b>Cloth → Collision. Rigid Body → Passive. Fluid → Effector.</b>" },
+    { t: "The #2 forgotten setting: delete the old bake",
+      b: `Blender does <b>not</b> automatically update a cache when you change settings. You must:
+        <ol class="doit">
+          <li>Change the setting.</li>
+          <li>Find the cache panel (Physics ▸ Cache, or Scene Properties ▸ Rigid Body World ▸ Cache).</li>
+          <li>Click <b>Delete Bake</b>.</li>
+          <li>Click <b>Bake</b> again.</li>
+        </ol>`,
+      warn: "If you think 'the setting didn't do anything', it's almost certainly the old bake." },
+    { t: "Blender 5.3-specific gotchas",
+      b: `<ul class="doit">
+          <li><b>Cell Fracture isn't in the Object menu:</b> In 5.3 it's an <b>Extension</b>. Go to <b>Edit ▸ Preferences ▸ Get Extensions</b>, install Cell Fracture, then find it under <b>Object ▸ Quick Effects</b>.</li>
+          <li><b>Hair particles behave oddly:</b> The old particle hair is <b>deprecated</b> in 5.3. It still works, but the future is <b>Curves objects</b> (Shift+A ▸ Curves ▸ Empty Hair).</li>
+          <li><b>Blender won't start / black viewport:</b> 5.3 dropped OpenGL — you need Vulkan or Metal. Update your graphics drivers.</li>
+          <li><b>Something is missing from the old Add-ons tab:</b> Many add-ons moved to the Extensions platform. Use <b>Get Extensions</b> instead.</li>
+        </ul>`,
+      see: "You've confirmed the new 5.3 locations for Extensions and hair." },
+    { t: "Still stuck? The nuclear options",
+      b: `<ol class="doit">
+          <li>Save your file (<kbd>Ctrl</kbd>+<kbd>S</kbd>).</li>
+          <li>Restart Blender completely.</li>
+          <li><b>File ▸ Defaults ▸ Load Factory Settings</b>.</li>
+          <li><b>File ▸ New ▸ General</b> and start the tutorial again.</li>
+        </ol>`,
+      tip: "There's no shame in restarting." }
+  ],
+  finish: ["Bookmark this page — it answers 90% of 'why isn't this working' questions.","Remember: <b>delete the old bake</b>, and <b>Cell Fracture is an Extension</b>."]
+},
+
+/* ============================== SCULPTING =============================== */
+
+{
+  id: "blob", tab: "sculpt", emoji: "🗿",
+  title: "Blob Monster",
+  category: "Sculpting", level: "Beginner", minutes: 12, version: "Blender 5.3.0",
+  summary: "Turn a plain sphere into a cute blob monster by pushing and pulling it like clay. Sculpt Mode is Blender's digital clay — you'll use it for characters, creatures, and organic shapes.",
+  build: ["A sphere you can push, pull and dent","Two arms, two eyes, and a mouth","A remesh that cleans up the topology"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Sculpt Mode lives in the top-left dropdown that currently says <b>Object Mode</b>.","Sculpting brushes are in the left toolbar of the 3D Viewport."],
+  steps: [
+    { t: "Delete the default cube, add a sphere",
+      b: `<ol class="doit">
+          <li>Click the cube, press <kbd>X</kbd>, <kbd>Enter</kbd>.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>.</li>
+          <li><kbd>S</kbd>, type <b>1.5</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, type <b>2</b>, <kbd>Enter</kbd> — raise it off the floor.</li>
+        </ol>`,
+      see: "A smooth sphere about 1.5 m wide, floating 2 m above the ground." },
+    { t: "Enter Sculpt Mode",
+      b: `Click the top-left dropdown that says <b>Object Mode</b>, then choose <b>Sculpt Mode</b> from the list.`,
+      see: "The whole interface changes. A brush toolbar appears on the left, a Sculpt menu appears in the top bar, and your mouse cursor becomes a circle. The orange outline disappears — sculpting doesn't use selection.",
+      tip: "The circle is the brush size. Press <kbd>F</kbd> and drag to resize it. Press <kbd>F</kbd> and type a number for exact size." },
+    { t: "Turn on Dyntopo",
+      b: `In the top bar of the 3D Viewport, find the <b>Dyntopo</b> button (it may show a triangle next to it). Click it to toggle Dyntopo on. If a settings popover appears, set <b>Detail Size</b> to <b>20</b>.`,
+      see: "Dyntopo is enabled. Now the mesh will add new polygons automatically as you stretch and pull, so you can sculpt freely without running out of resolution.",
+      warn: "If Dyntopo is off, grabbing a point just stretches the existing polygons into a mess. Dyntopo is what makes this feel like clay." },
+    { t: "Pull out two arms with the Grab brush",
+      b: `<ol class="doit">
+          <li>Click the <b>Grab</b> brush in the left toolbar (shortcut: <kbd>G</kbd>).</li>
+          <li>Click on the left side of the sphere and <b>drag outward</b> to pull out an arm. Release.</li>
+          <li>Repeat on the right side for the other arm.</li>
+        </ol>`,
+      see: "Two stubby arms stick out from the sphere. The mesh has added new polygons to accommodate them.",
+      tip: "Drag slowly and watch the brush circle. Smaller brush = finer control. Bigger brush = bigger sweeps." },
+    { t: "Draw two eye sockets and a mouth",
+      b: `<ol class="doit">
+          <li>Click the <b>Draw</b> brush in the left toolbar (shortcut: <kbd>X</kbd>).</li>
+          <li>Tap twice near the top of the sphere to press two dents inward — these are the eye sockets.</li>
+          <li>Tap once lower down for a mouth.</li>
+          <li>Hold <kbd>Shift</kbd> and drag over any rough spots to <b>Smooth</b> them.</li>
+        </ol>`,
+      see: "Two eye sockets and a wide mouth visible on the face of the blob.",
+      tip: "Holding <kbd>Shift</kbd> while using any brush temporarily switches to the Smooth brush. You'll use this constantly." },
+    { t: "Clean up the mesh with Remesh",
+      b: `In the top bar of the viewport, click the <b>Remesh</b> button (or press <kbd>Ctrl</kbd>+<kbd>R</kbd>). Set <b>Voxel Size</b> to <b>0.05</b> and confirm.`,
+      see: "The mesh is rebuilt with clean, even topology everywhere. The overall shape is preserved, but the sculpting artifacts disappear.",
+      tip: "Remesh is a one-way trip — your smooth strokes become a solid, even mesh. Do this <b>after</b> major shaping, not during it." },
+    { t: "Add two tiny eyes",
+      b: `<ol class="doit">
+          <li>Switch back to <b>Object Mode</b> via the top-left dropdown.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>.</li>
+          <li><kbd>S</kbd>, type <b>0.15</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd> and move it into the first eye socket.</li>
+          <li><kbd>Shift</kbd>+<kbd>D</kbd> to duplicate, then move the copy into the second socket.</li>
+        </ol>`,
+      see: "Two small eyeballs sitting inside the sculpted sockets. The blob monster is now looking at you.",
+      tip: "The eyes are separate objects — you can colour them separately and even rig them later." }
+  ],
+  finish: ["Press <kbd>Z</kbd> ▸ <b>Rendered</b> to see your monster with proper lighting.","Give the body a bright colour in Material Properties.","Hard mode: add tiny horns with the Grab brush, or a Cyclops-style single eye."]
+},
+
+{
+  id: "head", tab: "sculpt", emoji: "🧑",
+  title: "Stylized Head",
+  category: "Sculpting", level: "Intermediate", minutes: 25, version: "Blender 5.3.0",
+  summary: "Sculpt a stylized human head from a sphere. This is the classic 'learn to sculpt' exercise — block out the skull, stretch out the nose, carve eye sockets, then smooth everything. Take your time.",
+  build: ["A recognizable head shape","A nose, brow ridge and jaw","Eye sockets and a mouth crease","A smooth, clean finished sculpt"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Have a photo of a face nearby for reference — even a stylized one.","Sculpting is patient work. Don't try to rush it."],
+  steps: [
+    { t: "Start with a sphere and enter Sculpt Mode",
+      b: `<ol class="doit">
+          <li>Delete the default cube.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>1.5</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>2</b>, <kbd>Enter</kbd>.</li>
+          <li>Switch to <b>Sculpt Mode</b> via the top-left dropdown.</li>
+          <li>Turn on <b>Dyntopo</b> in the top bar. Set Detail Size to <b>15</b>.</li>
+        </ol>`,
+      see: "You're in Sculpt Mode with the brush toolbar on the left, looking at a smooth sphere." },
+    { t: "Block out the skull with the Grab brush",
+      b: `Use the <b>Grab</b> brush (<kbd>G</kbd>) to make the sphere taller and narrower, like a head rather than a ball:
+        <ol class="doit">
+          <li>Drag the top of the sphere slightly up and back.</li>
+          <li>Drag the bottom down and forward to make a jaw.</li>
+          <li>Flatten the back of the head by dragging the back surface inward.</li>
+        </ol>`,
+      see: "A rough head-shaped mass: tall, with a slightly protruding jaw at the bottom and a flatter back.",
+      tip: "Think of it as blocking out a rough statue — shape first, detail later." },
+    { t: "Enable X-axis symmetry",
+      b: `In the top bar of the viewport, find the <b>Symmetry</b> dropdown (an X / Y / Z toggle) and enable the <b>X</b> axis.`,
+      see: "A faint mirrored brush circle appears. Everything you sculpt on the left now mirrors on the right automatically.",
+      tip: "Symmetry is essential for faces. Turn it off only when you're intentionally adding asymmetry like a scar or a tilted eyebrow." },
+    { t: "Pull out the nose",
+      b: `With the <b>Grab</b> brush:
+        <ol class="doit">
+          <li>Click on the center of the face, midway down.</li>
+          <li>Drag straight forward (toward you) to pull a nose out.</li>
+          <li>Do it in two or three smaller drags, not one big one.</li>
+        </ol>`,
+      see: "A nose shape protrudes from the front of the face, mirrored on both sides thanks to symmetry.",
+      tip: "Noses are long and thin. Smaller brushes give more control." },
+    { t: "Carve the eye sockets",
+      b: `<ol class="doit">
+          <li>Switch to the <b>Draw</b> brush (<kbd>X</kbd>).</li>
+          <li>Tap twice just above the nose, where the eyes should go, to press two dents inward.</li>
+          <li>Switch to <b>Smooth</b> (<kbd>Shift</kbd>) and soften the edges of the dents.</li>
+        </ol>`,
+      see: "Two eye-shaped depressions on either side of the nose. The brow ridge above them is naturally raised.",
+      tip: "Don't push too deep on the first pass — you can always add more. Undoing a deep dent is harder." },
+    { t: "Add the mouth crease and brow",
+      b: `Use the <b>Crease</b> brush (shortcut <kbd>C</kbd>) for tight, sharp lines:
+        <ol class="doit">
+          <li>Drag a horizontal line where the mouth should be.</li>
+          <li>Drag two short lines above each eye for a brow furrow.</li>
+          <li>Smooth (<kbd>Shift</kbd>) any harsh edges.</li>
+        </ol>`,
+      see: "A mouth line and two brow lines are now visible — the head looks human.",
+      tip: "The Crease brush carves narrow, deep lines. Perfect for lips, wrinkles and folds." },
+    { t: "Refine and clean up",
+      b: `<ol class="doit">
+          <li>Switch to <b>Smooth</b> and gently smooth the whole head — especially the cheeks and forehead.</li>
+          <li>Use <b>Grab</b> to nudge any remaining shape issues (chin, temples, cheeks).</li>
+          <li>When you're happy, click <b>Remesh</b> in the top bar (Voxel Size <b>0.04</b>) to clean up the mesh.</li>
+        </ol>`,
+      see: "The head looks smoother, more balanced, and the mesh is even.",
+      warn: "Remesh is destructive — save (<kbd>Ctrl</kbd>+<kbd>S</kbd>) before you remesh, in case you want to go back." }
+  ],
+  finish: ["Save your work (<kbd>Ctrl</kbd>+<kbd>S</kbd>) — sculpts are easy to lose.","Add two small spheres for eyeballs in the sockets.","Hard mode: sculpt ears, then learn the multiresolution modifier for even finer detail."]
+},
+
+{
+  id: "rock", tab: "sculpt", emoji: "🪨",
+  title: "Rock Formation",
+  category: "Sculpting", level: "Beginner", minutes: 8, version: "Blender 5.3.0",
+  summary: "Sculpt chunky, jagged rocks with a handful of brushes. Fast, forgiving, and a great warm-up before you tackle organic sculpting. Rocks don't care about perfect anatomy — perfect for beginners.",
+  build: ["A chunky rock base","Sharp cracks and carved edges","A cluster of rocks arranged as a formation"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Sculpt Mode is in the top-left dropdown.","Clay Strips, Crease, Grab and Smooth are the only brushes you need."],
+  steps: [
+    { t: "Start with a subdivide cube",
+      b: `<ol class="doit">
+          <li>Delete the default cube.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cube</b>.</li>
+          <li><kbd>Tab</kbd> for Edit Mode, <b>right-click ▸ Subdivide</b>, set <b>Number of Cuts</b> to <b>3</b>.</li>
+          <li><kbd>Tab</kbd> back to Object Mode, then <kbd>S</kbd>, <b>1.5</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>1.5</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A sub-divided cube resting on the floor — a good starting mass for a rock." },
+    { t: "Enter Sculpt Mode with Dyntopo",
+      b: `Switch to <b>Sculpt Mode</b> via the top-left dropdown. Enable <b>Dyntopo</b> in the top bar and set Detail Size to <b>20</b>.`,
+      see: "The interface changes to Sculpt Mode, brushes appear on the left, and Dyntopo is on." },
+    { t: "Build up chunky shapes with Clay Strips",
+      b: `<ol class="doit">
+          <li>Click the <b>Clay Strips</b> brush in the left toolbar (or press <kbd>Shift</kbd>+<kbd>Space</kbd> to see all brushes).</li>
+          <li>Drag over the cube to push out bumps and lumps. Do it in many small strokes rather than one big one.</li>
+          <li>Rotate the view (middle mouse) and keep adding lumps from different angles.</li>
+        </ol>`,
+      see: "The cube is now a lumpy, organic mass with rounded protrusions — the beginnings of a rock." },
+    { t: "Carve sharp cracks with the Crease brush",
+      b: `Switch to the <b>Crease</b> brush (<kbd>C</kbd>). Drag short, firm lines across the rock surface to carve cracks and fractures.`,
+      see: "Deep, sharp lines appear on the rock — the kind of cracks you'd see in a weathered boulder.",
+      tip: "Hold <kbd>Shift</kbd> to smooth the edges of a crack, or keep them sharp by not smoothing." },
+    { t: "Pull out irregular chunks with Grab",
+      b: `Switch to the <b>Grab</b> brush (<kbd>G</kbd>). Pull corners and sides outward and sideways to make the silhouette more irregular. No two rocks are the same shape — lean into it.`,
+      see: "The rock now has an uneven, natural-looking silhouette rather than a cube shape." },
+    { t: "Smooth and remesh",
+      b: `<ol class="doit">
+          <li>Smooth (<kbd>Shift</kbd>) any harsh artifacts.</li>
+          <li>Click <b>Remesh</b> in the top bar with <b>Voxel Size</b> <b>0.05</b> to clean up the mesh.</li>
+          <li>Switch back to <b>Object Mode</b>.</li>
+          <li>Right-click ▸ <b>Shade Flat</b> for a hard, low-poly rock look.</li>
+        </ol>`,
+      see: "The rock looks clean and solid, with sharp facets where the light hits it." },
+    { t: "Duplicate to make a formation",
+      b: `<ol class="doit">
+          <li>Select the rock, <kbd>Shift</kbd>+<kbd>D</kbd> to duplicate.</li>
+          <li><kbd>G</kbd>, <kbd>X</kbd>, <b>2</b>, <kbd>Enter</kbd> to place the copy beside the original.</li>
+          <li>Press <kbd>R</kbd>, <kbd>Z</kbd>, <b>45</b>, <kbd>Enter</kbd> to rotate it so it doesn't look identical.</li>
+          <li>Press <kbd>S</kbd>, <b>0.7</b>, <kbd>Enter</kbd> to shrink it.</li>
+          <li>Repeat a few more times to build a small rocky formation.</li>
+        </ol>`,
+      see: "A cluster of differently sized and angled rocks sitting on the floor — a proper rock formation.",
+      tip: "Vary the scale and rotation of each rock. Identical duplicates look artificial." }
+  ],
+  finish: ["Give the rocks a grey material with roughness 0.9.","Turn on Rendered view (<kbd>Z</kbd> ▸ Rendered) to see the light play off the sharp facets.","Hard mode: add a Displace modifier with a Clouds texture for microdetail."]
+},
+
+/* =============================== MODELING =============================== */
+
+{
+  id: "mug", tab: "model", emoji: "☕",
+  title: "Coffee Mug",
+  category: "Modeling", level: "Beginner", minutes: 12, version: "Blender 5.3.0",
+  summary: "Model a coffee mug from scratch using extrude, inset and bevel — the three operations that unlock 90% of hard-surface modeling. By the end you'll have a smooth, subsurf-mug with a handle.",
+  build: ["A hollow, cup-shaped body","A rounded handle","Smooth, subsurfed surfaces"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Modeling happens in <b>Edit Mode</b> — press <kbd>Tab</kbd> to toggle.","Shortcuts used: <kbd>E</kbd> extrude, <kbd>I</kbd> inset, <kbd>Ctrl</kbd>+<kbd>B</kbd> bevel."],
+  steps: [
+    { t: "Start with a cylinder",
+      b: `<ol class="doit">
+          <li>Delete the default cube (<kbd>X</kbd>, <kbd>Enter</kbd>).</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cylinder</b>.</li>
+          <li>In the bottom-left 'Add Cylinder' panel, set <b>Radius</b> to <b>1.5</b> and <b>Depth</b> to <b>2</b>.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>1</b>, <kbd>Enter</kbd> — sits on the floor.</li>
+          <li><b>Right-click</b> ▸ <b>Shade Smooth</b>.</li>
+        </ol>`,
+      see: "A smooth, 3 m wide, 2 m tall cylinder on the floor — the mug's basic body." },
+    { t: "Hollow out the mug with Inset and Extrude",
+      b: `<ol class="doit">
+          <li>Press <kbd>Tab</kbd> for Edit Mode. Press <kbd>3</kbd> for face select.</li>
+          <li>Click the <b>top face</b> of the cylinder.</li>
+          <li>Press <kbd>I</kbd>, type <b>0.15</b>, <kbd>Enter</kbd> — creates an inner ring.</li>
+          <li>Press <kbd>E</kbd>, <kbd>Z</kbd>, type <b>-1.8</b>, <kbd>Enter</kbd> — pushes the inner face down into the mug.</li>
+        </ol>`,
+      see: "The mug is now open at the top and hollow inside, with a thick rim around the edge." },
+    { t: "Round the top rim",
+      b: `With the top edge loop still selected:
+        <ol class="doit">
+          <li>Press <kbd>Ctrl</kbd>+<kbd>B</kbd> to bevel.</li>
+          <li>Type <b>0.03</b> and scroll the mouse wheel up a few times to add segments.</li>
+          <li>Press <kbd>Enter</kbd> to confirm.</li>
+          <li>Press <kbd>Tab</kbd> back to Object Mode.</li>
+        </ol>`,
+      see: "The sharp top edge is now a smooth rounded rim." },
+    { t: "Add a handle",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Torus</b>.</li>
+          <li><kbd>R</kbd>, <kbd>Y</kbd>, <b>90</b>, <kbd>Enter</kbd> — turn it sideways.</li>
+          <li><kbd>S</kbd>, type <b>0.4</b>, <kbd>Enter</kbd> — shrink it.</li>
+          <li><kbd>G</kbd>, <kbd>X</kbd>, <b>1.4</b>, <kbd>Enter</kbd> — move to the right side.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>1</b>, <kbd>Enter</kbd> — align with the mug body.</li>
+        </ol>`,
+      see: "A small donut-shape positioned on the side of the mug, ready to be the handle.",
+      tip: "The handle can poke slightly into the mug — no one will see it." },
+    { t: "Join handle to mug",
+      b: `<ol class="doit">
+          <li>Shift+click the mug body, then <kbd>Ctrl</kbd>+click the torus to select both (mug last).</li>
+          <li>Press <kbd>Ctrl</kbd>+<kbd>J</kbd> to join them into one object.</li>
+        </ol>`,
+      see: "The mug and handle are now one object with two separate surface pieces. If you move it, both move together." },
+    { t: "Smooth everything with a Subdivision Surface modifier",
+      b: `With the mug selected, go to <b>Modifier Properties</b> (blue wrench) ▸ <b>Add Modifier ▸ Generate ▸ Subdivision Surface</b>. Set <b>Levels Viewport</b> to <b>2</b>.`,
+      see: "The mug becomes beautifully smooth and rounded — the harsh cylinder edges disappear entirely." },
+    { t: "Add a material",
+      b: `<ol class="doit">
+          <li>Material Properties (red checkered ball) ▸ <b>New</b>.</li>
+          <li>Set <b>Base Color</b> to a warm cream.</li>
+          <li>Set <b>Roughness</b> to <b>0.4</b>.</li>
+          <li>Press <kbd>Z</kbd> ▸ <b>Rendered</b> to see it.</li>
+        </ol>`,
+      see: "A smooth, glossy cream-colored mug with a rounded handle and a hollow interior." }
+  ],
+  finish: ["Save (<kbd>Ctrl</kbd>+<kbd>S</kbd>) and try a different material — ceramic, metal, patterned.","Try a second mug with a different handle shape.","Hard mode: add a small coaster under the mug and animate the mug being picked up."]
+},
+
+{
+  id: "tree", tab: "model", emoji: "🌳",
+  title: "Low-Poly Tree",
+  category: "Modeling", level: "Beginner", minutes: 8, version: "Blender 5.3.0",
+  summary: "Build a stylized low-poly tree from a cylinder trunk and three stacked cones. Fast, forgiving, and instantly satisfying — the classic first modeling exercise.",
+  build: ["A cylinder trunk","Three stacked cones for foliage","A flat-shaded low-poly look"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","A 'low-poly' look means flat-shaded, faceted surfaces. Perfect for a stylized tree.","You'll use the basic transforms — <kbd>G</kbd>, <kbd>S</kbd>, <kbd>R</kbd> — plus duplicate."],
+  steps: [
+    { t: "Build the trunk",
+      b: `<ol class="doit">
+          <li>Delete the default cube.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cylinder</b>.</li>
+          <li>In the bottom-left panel: <b>Radius</b> = <b>0.3</b>, <b>Depth</b> = <b>3</b>.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>1.5</b>, <kbd>Enter</kbd> — trunk sits on the floor.</li>
+        </ol>`,
+      see: "A thin cylinder about 3 m tall, standing on the floor." },
+    { t: "Add the first cone of foliage",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cone</b>.</li>
+          <li>Set <b>Radius</b> to <b>1.5</b> and <b>Depth</b> to <b>2</b> in the bottom-left panel.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>3.5</b>, <kbd>Enter</kbd> — first cone sits on top of the trunk.</li>
+        </ol>`,
+      see: "A cone sits balanced on top of the trunk — the first layer of foliage." },
+    { t: "Stack a second, smaller cone",
+      b: `<ol class="doit">
+          <li>Select the cone, <kbd>Shift</kbd>+<kbd>D</kbd> to duplicate.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>1</b>, <kbd>Enter</kbd> — raise the copy above the first cone.</li>
+          <li><kbd>S</kbd>, type <b>0.75</b>, <kbd>Enter</kbd> — shrink it slightly.</li>
+        </ol>`,
+      see: "Two cones stacked on top of the trunk, each narrower than the one below — classic Christmas-tree shape." },
+    { t: "Add a third cone for the top",
+      b: `<ol class="doit">
+          <li>Select the top cone, <kbd>Shift</kbd>+<kbd>D</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>0.8</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>S</kbd>, <b>0.6</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "Three stacked cones form a triangular pine-tree silhouette on the trunk." },
+    { t: "Shade the whole tree flat",
+      b: `<ol class="doit">
+          <li>Click the trunk, then <kbd>Shift</kbd>+click the top cone (and middle) to select all parts.</li>
+          <li>Press <kbd>Ctrl</kbd>+<kbd>J</kbd> to join into one object.</li>
+          <li>Right-click ▸ <b>Shade Flat</b>.</li>
+        </ol>`,
+      see: "The tree now has hard, faceted edges — the low-poly look, with each face clearly visible." },
+    { t: "Add a green material",
+      b: `<ol class="doit">
+          <li>Material Properties ▸ <b>New</b>.</li>
+          <li>Set <b>Base Color</b> to forest green.</li>
+          <li>Set <b>Roughness</b> to <b>0.8</b>.</li>
+          <li>Press <kbd>Z</kbd> ▸ <b>Rendered</b>.</li>
+        </ol>`,
+      see: "A green low-poly tree with sharp edges and a chunky silhouette.",
+      tip: "To colour the trunk brown separately, select just the trunk faces in Edit Mode and assign a second material slot." }
+  ],
+  finish: ["Duplicate the tree (<kbd>Shift</kbd>+<kbd>D</kbd>) and vary the size and rotation to make a small forest.","Save (<kbd>Ctrl</kbd>+<kbd>S</kbd>) and try a snowy variant with white foliage.","Hard mode: add a slight random rotation to each tree for a natural, clustered forest."]
+},
+
+/* ================================ SHADING =============================== */
+
+{
+  id: "marble", tab: "shade", emoji: "🎱",
+  title: "Marble Material",
+  category: "Shading", level: "Beginner", minutes: 12, version: "Blender 5.3.0",
+  summary: "Build a convincing marble material with two texture nodes and a colour ramp. This is the classic procedural material — no image textures, no UVs, just pure node magic.",
+  build: ["A procedural noise pattern","A colour ramp that turns noise into marble veins","A glossy, reflective surface"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","You'll use the <b>Shader Editor</b> — press <kbd>Shift</kbd>+<kbd>F3</kbd> with your mouse over any panel to open it.","This works in both EEVEE and Cycles."],
+  steps: [
+    { t: "Prepare the scene",
+      b: `<ol class="doit">
+          <li>Delete the default cube.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>1.5</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>2</b>, <kbd>Enter</kbd>.</li>
+          <li>Right-click ▸ <b>Shade Smooth</b>.</li>
+        </ol>`,
+      see: "A smooth sphere floating above the floor." },
+    { t: "Create a new material and open the Shader Editor",
+      b: `<ol class="doit">
+          <li>Select the sphere, click <b>Material Properties</b> ▸ <b>New</b>.</li>
+          <li>Press <kbd>Shift</kbd>+<kbd>F3</kbd> with your mouse over the Properties panel — a large Shader Editor opens.</li>
+          <li>You'll see two default nodes: <b>Principled BSDF</b> and <b>Material Output</b>.</li>
+        </ol>`,
+      see: "A node graph with a Principled BSDF connected to a Material Output node." },
+    { t: "Add a Noise Texture",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Texture ▸ Noise Texture</b>.</li>
+          <li>Click once in the Shader Editor to place it.</li>
+          <li>In its settings, set <b>Scale</b> to <b>5</b> and <b>Detail</b> to <b>8</b>.</li>
+        </ol>`,
+      see: "A Noise Texture node appears with a purple Fac output on the right side.",
+      tip: "Higher Scale = smaller features. Higher Detail = more fine-grained detail." },
+    { t: "Add a Color Ramp",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Converter ▸ Color Ramp</b>.</li>
+          <li>Place it between the Noise Texture and the Principled BSDF.</li>
+          <li>Drag from the Noise Texture's <b>Fac</b> output to the Color Ramp's <b>Fac</b> input.</li>
+          <li>Drag from the Color Ramp's <b>Color</b> output to the Principled BSDF's <b>Base Color</b> input.</li>
+        </ol>`,
+      see: "The sphere now shows a black-and-white blotchy pattern (the Color Ramp's default black-white gradient)." },
+    { t: "Turn the noise into marble veins",
+      b: `In the Color Ramp node:
+        <ol class="doit">
+          <li>Click the <b>left colour stop</b> (black). Set its colour to <b>warm white</b>.</li>
+          <li>Drag the left stop's position to <b>0.4</b>.</li>
+          <li>Click the <b>right colour stop</b> (white). Set its colour to <b>charcoal grey</b>.</li>
+          <li>Drag the right stop's position to <b>0.6</b>.</li>
+          <li>Add a third colour stop in the middle by clicking the <b>+</b> on the Color Ramp. Set its colour to <b>light grey</b>.</li>
+        </ol>`,
+      see: "The sphere now shows a pattern of white-grey-black — the classic marble swirl." },
+    { t: "Add a Wave Texture for veins",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Texture ▸ Wave Texture</b>. Place it above the Noise Texture.</li>
+          <li>Set <b>Scale</b> to <b>3</b> and <b>Distortion</b> to <b>15</b>.</li>
+          <li>Add a <b>MixRGB</b> node (<kbd>Shift</kbd>+<kbd>A</kbd> ▸ Color ▸ Mix ▸ Color).</li>
+          <li>Connect both the Noise's Fac and the Wave's Fac into the Mix node's two color inputs. Set the Mix factor to <b>0.5</b>.</li>
+          <li>Connect the Mix output to the Color Ramp's Fac input.</li>
+        </ol>`,
+      see: "The pattern now has wavy, swirly veins — proper marble texture.",
+      tip: "If the pattern isn't to your taste, tweak the Wave Texture's <b>Scale</b> and <b>Distortion</b>." },
+    { t: "Make it glossy",
+      b: `In the Principled BSDF:
+        <ul class="doit">
+          <li><b>Roughness</b>: <b>0.1</b> — very glossy.</li>
+          <li><b>Specular IOR Level</b>: <b>0.6</b> — stronger highlights.</li>
+        </ul>
+        Press <kbd>Z</kbd> ▸ <b>Rendered</b> to see the final result.`,
+      see: "The sphere is a glossy, veined marble ball with sharp highlights. It genuinely looks like polished stone.",
+      tip: "Try Roughness 0.5 for a matte stone, or add an <b>Anisotropic</b> value for a brushed-stone feel." }
+  ],
+  finish: ["Save (<kbd>Ctrl</kbd>+<kbd>S</kbd>) — materials are worth keeping.","Try changing the Color Ramp colours to make jade, obsidian or marble-with-gold-veins.","Hard mode: add subtle bumps using the same noise pattern as a Bump map connected to the Principled Normal."]
+},
+
+{
+  id: "toon", tab: "shade", emoji: "🎨",
+  title: "Toon Shader",
+  category: "Shading", level: "Beginner", minutes: 15, version: "Blender 5.3.0",
+  summary: "Give any object a flat cartoon look — solid bands of colour instead of smooth gradients. The classic technique uses Shader to RGB and a Color Ramp with Constant interpolation. Requires EEVEE.",
+  build: ["A flat-shaded object","Banded, cel-shaded lighting","Crisp cartoon outlines (optional)"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","<b>Shader to RGB</b> only works in <b>EEVEE</b>, not Cycles. Switch to EEVEE if you haven't.","Uses the Shader Editor — <kbd>Shift</kbd>+<kbd>F3</kbd>."],
+  steps: [
+    { t: "Switch to EEVEE and prepare a sphere",
+      b: `<ol class="doit">
+          <li>In the Render Properties (camera icon), set <b>Render Engine</b> to <b>EEVEE</b>.</li>
+          <li>Delete the default cube.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>1.5</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>2</b>, <kbd>Enter</kbd>.</li>
+          <li>Right-click ▸ <b>Shade Smooth</b>.</li>
+        </ol>`,
+      see: "A smooth sphere floating above the floor." },
+    { t: "Create the material and open the Shader Editor",
+      b: `<ol class="doit">
+          <li>Select the sphere, click <b>Material Properties</b> ▸ <b>New</b>.</li>
+          <li>Press <kbd>Shift</kbd>+<kbd>F3</kbd> with your mouse over the Properties panel to open the Shader Editor.</li>
+        </ol>`,
+      see: "A Principled BSDF connected to Material Output." },
+    { t: "Replace Principled with a Diffuse + Shader to RGB chain",
+      b: `<ol class="doit">
+          <li>Click the <b>Principled BSDF</b> node and press <kbd>X</kbd> to delete it.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Shader ▸ Diffuse BSDF</b>. Place it where the Principled was.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Converter ▸ Shader to RGB</b>. Place it to the right of the Diffuse.</li>
+          <li>Connect the Diffuse's <b>BSDF output</b> to the Shader to RGB's <b>Shader input</b>.</li>
+        </ol>`,
+      see: "A Diffuse BSDF feeding into a Shader to RGB node. The Shader to RGB has a yellow Color output on the right." },
+    { t: "Add a Color Ramp for cel shading",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Converter ▸ Color Ramp</b>. Place it after Shader to RGB.</li>
+          <li>Connect Shader to RGB's <b>Color</b> output to Color Ramp's <b>Fac</b> input.</li>
+          <li>In the Color Ramp's top dropdown, change <b>Interpolation</b> from Linear to <b>Constant</b>.</li>
+        </ol>`,
+      see: "The sphere now shows two solid bands of light and dark — flat cartoon shading.",
+      tip: "<b>Constant</b> interpolation is the key. Linear gives smooth gradients; Constant gives you the hard cel-shaded bands." },
+    { t: "Choose your cartoon colours",
+      b: `Set the Color Ramp colours:
+        <ul class="doit">
+          <li>Click the <b>left stop</b> and set it to a <b>deep blue-purple</b> — this is the shadow colour.</li>
+          <li>Click the <b>right stop</b> and set it to a <b>bright blue</b> — this is the lit colour.</li>
+          <li>Drag the stops' positions to control where the shadow ends: <b>0.3</b> and <b>0.7</b> give a nice chunky look.</li>
+        </ul>`,
+      see: "The sphere is now split into two solid blue bands. It looks like a cartoon character." },
+    { t: "Output the flat colour",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Shader ▸ Emission</b>. Place it to the right of the Color Ramp.</li>
+          <li>Connect the Color Ramp's <b>Color</b> output to the Emission's <b>Color</b> input.</li>
+          <li>Connect the Emission's <b>output</b> to the Material Output's <b>Surface</b> input.</li>
+        </ol>`,
+      see: "The sphere now shows pure, flat, unshaded bands of colour — no highlights, no gradients. This is the toon look.",
+      tip: "Using Emission means the material is literally 'self-lit' at the chosen colour. The bands come entirely from the Color Ramp, not the actual lighting." },
+    { t: "Add a black outline (optional but recommended)",
+      b: `<ol class="doit">
+          <li>Select the sphere, go to <b>Modifier Properties</b>.</li>
+          <li>Add Modifier ▸ Generate ▸ <b>Solidify</b>. Set <b>Thickness</b> to <b>0.03</b> and tick <b>Flip Normals</b>.</li>
+          <li>In the Solidify modifier's <b>Material Index Offset</b>, set it to <b>1</b>.</li>
+          <li>Back in Material Properties, add a second material slot and give it a plain black material (Base Color = black, Roughness = 1).</li>
+        </ol>`,
+      see: "A crisp black outline surrounds the entire sphere — you now have a proper cel-shaded cartoon object.",
+      tip: "The 'inverted hull' trick is how anime studios have done 3D cel shading for decades." }
+  ],
+  finish: ["Duplicate the sphere, change the Color Ramp to pink/purple and you have a cartoon duo.","Save (<kbd>Ctrl</kbd>+<kbd>S</kbd>).","Hard mode: apply this material to a low-poly character model and add an outline modifier."]
+},
+
+/* =============================== ANIMATION ============================= */
+
+{
+  id: "ball", tab: "anim", emoji: "🏀",
+  title: "Bouncing Ball",
+  category: "Animation", level: "Beginner", minutes: 10, version: "Blender 5.3.0",
+  summary: "The classic first animation. Make a ball bounce with squash and stretch — the two principles that make any animation feel alive. Ten minutes to a working loop.",
+  build: ["A ball that moves up and down over 40 frames","Squash on impact, stretch on the way up","A smooth, believable bounce"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Keyframes are inserted with <kbd>I</kbd> (with your mouse in the 3D Viewport).","The Timeline is at the bottom; the Graph Editor can be opened via the bottom-left dropdown."],
+  steps: [
+    { t: "Add a ball above a floor",
+      b: `<ol class="doit">
+          <li>Delete the default cube.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>0.5</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Plane</b>, <kbd>S</kbd>, <b>5</b>, <kbd>Enter</kbd> for a floor.</li>
+          <li>Right-click the ball ▸ <b>Shade Smooth</b>.</li>
+        </ol>`,
+      see: "A ball hovering 3 m above a floor plane." },
+    { t: "Keyframe the ball at its peak (frame 1)",
+      b: `<ol class="doit">
+          <li>Select the ball. Click the Timeline at the bottom and drag the playhead to frame <b>1</b>.</li>
+          <li>With your mouse in the 3D Viewport, press <kbd>I</kbd>. A small menu appears.</li>
+          <li>Choose <b>Location</b>. A yellow diamond appears on the Timeline at frame 1.</li>
+        </ol>`,
+      see: "A yellow diamond marks frame 1 on the Timeline, recording the ball's starting position.",
+      tip: "If no diamond appears, you probably pressed <kbd>I</kbd> while the mouse was over the wrong panel. Move the mouse to the 3D Viewport and try again." },
+    { t: "Keyframe the ball at the floor (frame 20)",
+      b: `<ol class="doit">
+          <li>Drag the Timeline playhead to frame <b>20</b>.</li>
+          <li>With the ball selected, press <kbd>G</kbd>, <kbd>Z</kbd>, <b>-2.5</b>, <kbd>Enter</kbd> — it lands on the floor.</li>
+          <li>Press <kbd>I</kbd> again, choose <b>Location</b>.</li>
+        </ol>`,
+      see: "The ball is now touching the floor at frame 20. A second yellow diamond marks frame 20." },
+    { t: "Keyframe the ball back up (frame 40)",
+      b: `<ol class="doit">
+          <li>Drag the playhead to frame <b>40</b>.</li>
+          <li>Press <kbd>G</kbd>, <kbd>Z</kbd>, <b>2.5</b>, <kbd>Enter</kbd> — back to the starting height.</li>
+          <li>Press <kbd>I</kbd>, choose <b>Location</b>.</li>
+          <li>Press <kbd>Spacebar</kbd> to watch it bounce.</li>
+        </ol>`,
+      see: "The ball moves smoothly up and down over 40 frames. It's a bounce, but it feels floaty — that's because the motion is linear." },
+    { t: "Add squash on impact (frame 20)",
+      b: `<ol class="doit">
+          <li>Keep the playhead at frame <b>20</b>.</li>
+          <li>With the ball selected, press <kbd>S</kbd>, <kbd>Z</kbd>, <b>0.7</b>, <kbd>Enter</kbd> — squashes vertically.</li>
+          <li>Press <kbd>S</kbd>, <kbd>Shift</kbd>+<kbd>Z</kbd>, <b>1.3</b>, <kbd>Enter</kbd> — widens in X and Y.</li>
+          <li>Press <kbd>I</kbd>, choose <b>Scale</b>.</li>
+        </ol>`,
+      see: "The ball is now visibly squashed at the bottom of the bounce. Frame 20 now has two diamonds: one for location, one for scale." },
+    { t: "Restore normal scale at the peak (frames 1 and 40)",
+      b: `<ol class="doit">
+          <li>Go to frame <b>1</b>, press <kbd>S</kbd>, <b>1</b>, <kbd>Enter</kbd>, then <kbd>I</kbd> ▸ <b>Scale</b>. (Resets scale to 1.)</li>
+          <li>Go to frame <b>40</b>, press <kbd>S</kbd>, <b>1</b>, <kbd>Enter</kbd>, then <kbd>I</kbd> ▸ <b>Scale</b>.</li>
+          <li>Press <kbd>Spacebar</kbd>.</li>
+        </ol>`,
+      see: "The ball squashes when it hits the floor and returns to a normal sphere in the air. This is the classic squash-and-stretch bounce." },
+    { t: "Smooth the motion with the Graph Editor",
+      b: `<ol class="doit">
+          <li>Hover over the Timeline and press <kbd>Shift</kbd>+<kbd>F6</kbd> to open the Graph Editor.</li>
+          <li>Press <kbd>A</kbd> to select all keyframes.</li>
+          <li>Press <kbd>T</kbd> and choose <b>Auto Clamped</b> for smooth easing.</li>
+          <li>Optionally press <kbd>T</kbd> again and try <b>Bounce</b> for a physical-looking bounce.</li>
+        </ol>`,
+      see: "The motion is now smooth and organic — the ball eases in and out of its bounce instead of moving linearly.",
+      tip: "Change the Timeline to frame range 1-40 in the Output Properties if the bounce doesn't loop cleanly when you play it." }
+  ],
+  finish: ["Press <kbd>Spacebar</kbd> to watch the finished bounce.","Add a second ball at a different height for a duet.","Hard mode: add a third keyframe so the ball bounces lower each time — gravity!"]
+},
+
+{
+  id: "fly", tab: "anim", emoji: "🎥",
+  title: "Camera Flythrough",
+  category: "Animation", level: "Beginner", minutes: 8, version: "Blender 5.3.0",
+  summary: "Animate the camera to fly past objects over 100 frames. Two keyframes, one smooth move — the most useful animation in all of 3D.",
+  build: ["A camera that moves through the scene","A smooth, easing motion","A renderable animation"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Insert location + rotation keyframes with <kbd>I</kbd>.","The Graph Editor (<kbd>Shift</kbd>+<kbd>F6</kbd>) smooths motion."],
+  steps: [
+    { t: "Prepare a simple scene",
+      b: `<ol class="doit">
+          <li>Delete the default cube.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>1.5</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>X</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cube</b>, <kbd>S</kbd>, <b>1</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>X</kbd>, <b>-3</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>1</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cylinder</b>, <kbd>S</kbd>, <b>0.5</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Y</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A sphere, a cube and a cylinder scattered around the scene — good landmarks for a camera flythrough." },
+    { t: "Position the camera at the start",
+      b: `<ol class="doit">
+          <li>Select the <b>Camera</b> in the Outliner (or click it in the viewport).</li>
+          <li>Press <kbd>Numpad 0</kbd> to look through the camera.</li>
+          <li>Move it to the start position: <kbd>G</kbd>, <kbd>X</kbd>, <b>-10</b>, <kbd>Enter</kbd>. <kbd>G</kbd>, <kbd>Y</kbd>, <b>-5</b>, <kbd>Enter</kbd>. <kbd>G</kbd>, <kbd>Z</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "The camera view shows the objects from far away, off to one side." },
+    { t: "Keyframe the camera at frame 1",
+      b: `<ol class="doit">
+          <li>Make sure the playhead is on frame <b>1</b>.</li>
+          <li>With your mouse in the 3D Viewport and the camera selected, press <kbd>I</kbd>.</li>
+          <li>Choose <b>Location &amp; Rotation</b> to key both at once.</li>
+        </ol>`,
+      see: "A yellow diamond appears at frame 1 on the Timeline." },
+    { t: "Move the camera and keyframe at frame 100",
+      b: `<ol class="doit">
+          <li>Drag the playhead to frame <b>100</b>.</li>
+          <li>Move the camera to the end position: <kbd>G</kbd>, <kbd>X</kbd>, <b>20</b>, <kbd>Enter</kbd>.</li>
+          <li>Rotate it to look at the sphere: <kbd>R</kbd>, <kbd>Z</kbd>, <b>30</b>, <kbd>Enter</kbd>.</li>
+          <li>Press <kbd>I</kbd> ▸ <b>Location &amp; Rotation</b>.</li>
+          <li>Press <kbd>Spacebar</kbd> to play.</li>
+        </ol>`,
+      see: "The camera flies past the objects, ending up close to the sphere. It's a camera flythrough!" },
+    { t: "Smooth the motion",
+      b: `<ol class="doit">
+          <li>Hover the Timeline, press <kbd>Shift</kbd>+<kbd>F6</kbd> to open the Graph Editor.</li>
+          <li>Press <kbd>A</kbd> to select all keyframes.</li>
+          <li>Press <kbd>T</kbd> and choose <b>Bezier</b> for smooth easing.</li>
+          <li>Press <kbd>Spacebar</kbd> again to watch.</li>
+        </ol>`,
+      see: "The camera now eases in and out — a gentle, cinematic glide instead of a constant-speed slide.",
+      tip: "Try <b>Ease In</b> or <b>Ease Out</b> for different feels. Bezier is the safest all-rounder." },
+    { t: "Adjust the timing (optional)",
+      b: `Change the end frame to control how slow the flythrough is:
+        <ul class="doit">
+          <li><b>End frame 100</b>: fast — nice for short clips.</li>
+          <li><b>End frame 250</b>: cinematic slow glide.</li>
+          <li><b>End frame 400</b>: very slow, contemplative.</li>
+        </ul>
+        Drag the last keyframe along the Timeline to change the duration.`,
+      see: "The flythrough now plays at the speed you want." },
+    { t: "Render the animation",
+      b: `<ol class="doit">
+          <li>In Output Properties, set <b>Frame End</b> to your chosen end frame.</li>
+          <li>Press <kbd>Ctrl</kbd>+<kbd>F12</kbd> to render the animation.</li>
+          <li>Frames appear in the output folder shown in Output Properties.</li>
+        </ol>`,
+      see: "After a few minutes, you have a folder of PNG frames — or an MP4 if you set the output format to FFmpeg Video.",
+      tip: "For a quick MP4: Output Properties ▸ Output ▸ File Format = <b>FFmpeg Video</b>, then choose MPEG-4 / H.264." }
+  ],
+  finish: ["Save (<kbd>Ctrl</kbd>+<kbd>S</kbd>).","Try a curved flythrough by adding a third keyframe in the middle of the motion.","Hard mode: animate the sphere and cylinder too — a full animated scene."]
+},
+
+/* ============================== SIMULATIONS ============================= */
+
+{
+  id: "cloth", tab: "sim", emoji: "🏁",
+  title: "Wave the Flag",
+  category: "Cloth", level: "Beginner", minutes: 12, version: "Blender 5.3.0",
+  summary: "Hang a real piece of fabric on a pole, pin one edge, and watch gravity and wind turn a flat plane into a rippling flag. Cloth is the friendliest simulation in Blender 5.3.",
+  build: ["A subdivided plane that behaves like real fabric","A pin group to hold one edge","Wind that makes the flag flap","A baked cache you can scrub and render"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Physics lives in the Properties panel — the icon that looks like a ball with a curved trail.","Cloth works in real time, so no waiting for bakes while you experiment."],
+  steps: [
+    { t: "Delete the default cube",
+      b: `Click the cube so it's orange, press <kbd>X</kbd>, press <kbd>Enter</kbd>.`,
+      see: "The cube vanishes. Camera and light remain." },
+    { t: "Add the flag surface",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Plane</b>.</li>
+          <li><kbd>S</kbd>, <kbd>X</kbd>, <b>2</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>R</kbd>, <kbd>X</kbd>, <b>90</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A tall upright rectangle 4 m wide, roughly 1 m tall, 3 m above the floor." },
+    { t: "Subdivide the plane",
+      b: `<ol class="doit">
+          <li>Press <kbd>Tab</kbd> for Edit Mode.</li>
+          <li>Right-click ▸ <b>Subdivide</b>.</li>
+          <li>In the bottom-left panel, set <b>Number of Cuts</b> to <b>20</b>.</li>
+          <li><kbd>Tab</kbd> back to Object Mode.</li>
+        </ol>`,
+      see: "The rectangle is now a fine grid of small squares — real cloth needs thousands of vertices to fold smoothly." },
+    { t: "Add Cloth physics",
+      b: `With the plane selected, click the <b>Physics</b> icon, then click the big <b>Cloth</b> button.`,
+      see: "A Cloth settings panel fills the Properties area. Press <kbd>Spacebar</kbd> — the plane falls straight down." },
+    { t: "Pin the left edge",
+      b: `<ol class="doit">
+          <li>Select the plane, <kbd>Tab</kbd> for Edit Mode.</li>
+          <li>Hold <kbd>Alt</kbd> and left-click the <b>left edge</b> of the rectangle to select the whole edge loop.</li>
+          <li>In Physics ▸ <b>Shape</b>, click the <b>+</b> next to <b>Pin Group</b>.</li>
+          <li>Click <b>Object Data Properties</b> (green triangle) ▸ <b>Vertex Groups</b>. With the new group selected, Weight = <b>1.000</b>, click <b>Assign</b>.</li>
+          <li><kbd>Tab</kbd> out. Press <kbd>Spacebar</kbd>.</li>
+        </ol>`,
+      see: "The left edge stays put and the rest of the fabric swings down like a curtain." },
+    { t: "Add a pole",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cylinder</b>.</li>
+          <li>Radius <b>0.05</b>, Depth <b>4</b> in the bottom-left panel.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>2</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd>, <kbd>X</kbd>, <b>-2</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A thin pole stands under the pinned edge of the flag." },
+    { t: "Add wind",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Empty ▸ Single Arrow</b>.</li>
+          <li>Physics ▸ <b>Force Field ▸ Type: Wind</b>, Strength <b>5</b>.</li>
+          <li><kbd>R</kbd>, <kbd>X</kbd>, <b>90</b>, <kbd>Enter</kbd>.</li>
+          <li>Press <kbd>Spacebar</kbd>.</li>
+        </ol>`,
+      see: "The flag flaps and ripples like it's caught in a stiff breeze." },
+    { t: "Bake it",
+      b: `With the plane selected: Physics ▸ <b>Cache ▸ Bake</b>.`,
+      see: "A progress bar runs. When it finishes, scrub the Timeline — it plays smoothly with the exact same shape every time.",
+      warn: "If you change any setting after baking, delete the old bake (Cache ▸ Delete Bake) and bake again." }
+  ],
+  finish: ["Press <kbd>Spacebar</kbd> to watch the baked flag ripple.","Render with <kbd>Ctrl</kbd>+<kbd>F12</kbd>.","Hard mode: add a second flag with different wind."]
+},
+
+{
+  id: "rigid", tab: "sim", emoji: "🁣",
+  title: "Domino Chain Reaction",
+  category: "Rigid Body", level: "Beginner", minutes: 10, version: "Blender 5.3.0",
+  summary: "Build a row of dominoes, tip the first one, and let Blender 5.3's rigid body physics do the rest. Fast to preview, no bake required.",
+  build: ["A passive floor","Eight active dominoes","A baked chain reaction"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Rigid Body lives in the Physics tab.","Use <kbd>Shift</kbd>+<kbd>R</kbd> to repeat the last action."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add a passive floor",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Plane</b>, <kbd>S</kbd>, <b>5</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Rigid Body ▸ Type: Passive</b>.</li>
+        </ol>`,
+      see: "The floor has a rigid body icon next to it in the Outliner." },
+    { t: "Add the first domino",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cube</b>.</li>
+          <li><kbd>S</kbd>, <kbd>X</kbd>, <b>0.5</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>S</kbd>, <kbd>Y</kbd>, <b>0.1</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>S</kbd>, <kbd>Z</kbd>, <b>1</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd>, <kbd>Z</kbd>, <b>1</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Rigid Body ▸ Type: Active</b>.</li>
+        </ol>`,
+      see: "A tall thin domino stands on the floor." },
+    { t: "Duplicate into a row",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>D</kbd>, <kbd>X</kbd>, <b>1.5</b>, <kbd>Enter</kbd>.</li>
+          <li>Press <kbd>Shift</kbd>+<kbd>R</kbd> seven more times.</li>
+        </ol>`,
+      see: "Eight dominoes in a neat evenly spaced line." },
+    { t: "Tip the first one",
+      b: `Select only the first domino. <kbd>R</kbd>, <kbd>Y</kbd>, <b>15</b>, <kbd>Enter</kbd>.`,
+      see: "The first domino leans slightly to the right.",
+      warn: "Keep the tilt under 25° to avoid intersection glitches." },
+    { t: "Play and bake",
+      b: `Press <kbd>Spacebar</kbd>. Then go to Scene Properties (cone icon) ▸ <b>Rigid Body World ▸ Cache ▸ Bake</b>.`,
+      see: "The first domino falls, hits the second, and the chain reaction runs down the line. After baking, scrubbing the Timeline plays it back identically.",
+      warn: "If dominoes fall through the floor: check the floor is Passive Rigid Body. If they stay frozen: check all dominoes are Active." }
+  ],
+  finish: ["Add a rigid body ball to smash through the line.","Render with <kbd>Ctrl</kbd>+<kbd>F12</kbd>.","Hard mode: build a domino spiral."]
+},
+
+{
+  id: "fluid", tab: "sim", emoji: "💧",
+  title: "Pour Water Into a Glass",
+  category: "Fluid", level: "Intermediate", minutes: 20, version: "Blender 5.3.0",
+  summary: "Blender 5.3's Mantaflow fluid in four objects: a domain, an inflow, an open glass, and a lot of patience. Learn the domain–flow–effector trio you'll reuse in every liquid project.",
+  build: ["A domain box","An inflow sphere that pours water","An open glass","A baked liquid simulation"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Fluids are heavy — start at Resolution 32 for tests.","Mantaflow is still the fluid engine in 5.3."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Create the domain",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cube</b>, <kbd>S</kbd>, <b>3</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Fluid ▸ Type: Domain</b>. <b>Domain Type: Liquid</b>.</li>
+        </ol>`,
+      see: "The cube is still visible but now has fluid settings.",
+      warn: "The domain cube must have no rotation, no scale, and no keyframes. Press <kbd>Ctrl</kbd>+<kbd>A</kbd> ▸ Scale to apply any scaling." },
+    { t: "Add the water source",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Icosphere</b>, <kbd>S</kbd>, <b>0.5</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>6</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Fluid ▸ Type: Flow</b>. <b>Inflow</b> / <b>Liquid</b>.</li>
+        </ol>`,
+      see: "A small sphere near the top of the domain with fluid settings.",
+      warn: "The flow object must be <b>fully inside</b> the domain." },
+    { t: "Build the glass",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cylinder</b>, <kbd>S</kbd>, <b>1.5</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>1.8</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>Tab</kbd> for Edit Mode, <kbd>3</kbd> for face select, delete the top face (<kbd>X</kbd> ▸ Faces).</li>
+          <li><kbd>Tab</kbd> out. Modifier Properties ▸ <b>Solidify</b>, Thickness <b>0.1</b>.</li>
+          <li>Physics ▸ <b>Fluid ▸ Type: Effector</b>.</li>
+        </ol>`,
+      see: "A hollow glass, open at the top." },
+    { t: "Bake at low resolution",
+      b: `Select the domain. Physics ▸ <b>Settings ▸ Resolution Divisions</b>: <b>32</b>. Then <b>Cache ▸ Cache Type: All</b> ▸ <b>Bake Data</b>.`,
+      see: "The bake runs a few seconds. Water pours out and hits the glass.",
+      warn: "Water escaping the domain? Scale the domain up, delete the bake, and re-bake." },
+    { t: "Give it a water material",
+      b: `Select the domain. Material Properties ▸ New. <b>Base Color</b> pale blue, <b>Transmission Weight</b> <b>1.0</b>, <b>Roughness</b> <b>0.05</b>.`,
+      see: "The water now looks glassy and translucent." },
+    { t: "Final high-res bake",
+      b: `Set <b>Resolution Divisions</b> to <b>96</b>. Delete the old bake. Re-bake.`,
+      see: "A far more detailed splash — this is the final render quality." }
+  ],
+  finish: ["Add a second inflow sphere for a double pour.","Render with <kbd>Ctrl</kbd>+<kbd>F12</kbd>.","Hard mode: a rigid body ball dropping into the water."]
+},
+
+{
+  id: "soft", tab: "sim", emoji: "🍮",
+  title: "Jelly Cube",
+  category: "Soft Body", level: "Beginner", minutes: 8, version: "Blender 5.3.0",
+  summary: "Make a cube wobble, squash and jiggle like jelly. Soft body is the simplest simulation in Blender 5.3 — one button, two sliders, instant fun.",
+  build: ["A jiggly squishy cube","A floor the soft body collides with","Control over stiffness"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Soft body is lightweight — iterate in real time."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add the jelly",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cube</b>, <kbd>S</kbd>, <b>1.2</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A cube hovers 3 m above the ground." },
+    { t: "Subdivide for smooth deform",
+      b: `<ol class="doit">
+          <li><kbd>Tab</kbd> for Edit Mode, right-click ▸ <b>Subdivide</b>, Number of Cuts <b>3</b>.</li>
+          <li><kbd>Tab</kbd> back to Object Mode.</li>
+        </ol>`,
+      see: "The cube shows a grid of small squares on each face." },
+    { t: "Add a Collision floor",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Plane</b>, <kbd>S</kbd>, <b>5</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Collision</b>.</li>
+        </ol>`,
+      see: "The floor now has a collision icon in the Outliner.",
+      warn: "This is the step everyone forgets. Soft body needs a Collision modifier, not a rigid body." },
+    { t: "Turn the cube into jelly",
+      b: `Select the cube. Physics ▸ <b>Soft Body</b>. Press <kbd>Spacebar</kbd>.`,
+      see: "The cube drops and splats on the floor, wobbling back into shape.",
+      warn: "If it passes straight through the floor, the floor is missing the Collision modifier." },
+    { t: "Tune the jiggle",
+      b: `Select the cube. Physics ▸ <b>Soft Body ▸ Edges</b>: <b>Pull</b> = <b>Push</b> = <b>0.5</b>, <b>Stiffness</b> = <b>0.3</b> (wobbly) or <b>0.9</b> (firm).`,
+      see: "Different values give you very different jellies." },
+    { t: "Bake and smooth",
+      b: `Physics ▸ <b>Cache ▸ Bake</b>. Then add a <b>Subdivision Surface</b> modifier (Levels 2).`,
+      see: "The jelly cube looks glossy, smooth and completely jelly-like." }
+  ],
+  finish: ["Give it a translucent material.","Render with <kbd>Ctrl</kbd>+<kbd>F12</kbd>.","Hard mode: stack three jelly cubes."]
+},
+
+{
+  id: "smoke", tab: "sim", emoji: "💨",
+  title: "Rising Smoke Plume",
+  category: "Smoke & Fire", level: "Intermediate", minutes: 15, version: "Blender 5.3.0",
+  summary: "Emit smoke from a small object and watch it rise and curl. Same domain–flow trio as fluid. Mantaflow is still the engine in 5.3.",
+  build: ["A gas domain","A smoke emitter","A viewport slice view","A volume material"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Identical workflow to fluid."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add the emitter",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Icosphere</b>, <kbd>S</kbd>, <b>0.3</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>0.3</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Fluid ▸ Type: Flow</b>. <b>Inflow</b> / <b>Smoke</b>.</li>
+        </ol>`,
+      see: "A small sphere on the ground with flow settings." },
+    { t: "Create the gas domain",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cube</b>, <kbd>S</kbd>, <b>3</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>5</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Fluid ▸ Type: Domain</b>. <b>Domain Type: Gas</b>.</li>
+        </ol>`,
+      see: "A large box surrounds the emitter.",
+      warn: "The emitter must be fully inside the domain." },
+    { t: "See the smoke",
+      b: `Select the domain. Physics ▸ Fluid ▸ <b>Viewport Display ▸ Slice</b>, axis Z.`,
+      see: "A coloured slice through the domain shows you the smoke live." },
+    { t: "Bake",
+      b: `Resolution Divisions <b>48</b>, Cache Type All, Bake Data.`,
+      see: "The plume rises inside the domain." },
+    { t: "Add wind",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Empty ▸ Single Arrow</b>. Place it beside the domain.</li>
+          <li>Physics ▸ <b>Force Field ▸ Type: Wind</b>, Strength <b>2</b>.</li>
+        </ol>`,
+      see: "The plume drifts to one side." },
+    { t: "Make it render",
+      b: `Select the domain. Material Properties ▸ New. Open Shader Editor (<kbd>Shift</kbd>+<kbd>F3</kbd>).
+        <ol class="doit">
+          <li>Delete Principled BSDF.</li>
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Shader ▸ Principled Volume</b>.</li>
+          <li>Connect output to Material Output's <b>Volume</b> socket (not Surface).</li>
+          <li>Set Density to <b>0.5</b>.</li>
+        </ol>`,
+      see: "Soft grey smoke renders as a cloud inside the box.",
+      warn: "Connecting to Surface instead of Volume renders a solid grey cube." },
+    { t: "Final bake at 96", b: `Delete old bake, set Resolution to 96, re-bake.`, see: "A far more detailed plume with fine wisps." }
+  ],
+  finish: ["Try Domain Type ▸ Fire for a flame.","Render with <kbd>Ctrl</kbd>+<kbd>F12</kbd>.","Hard mode: animate the emitter for a smoke trail."]
+},
+
+{
+  id: "particles", tab: "sim", emoji: "✨",
+  title: "Floating Fireflies",
+  category: "Particles", level: "Beginner", minutes: 12, version: "Blender 5.3.0",
+  summary: "Scatter hundreds of tiny glowing spheres through the air, switch gravity off, and make them drift like fireflies. Particles are cheap and instant.",
+  build: ["A volume emitter","Zero gravity particles","An instanced glowing sphere"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Particle properties is the cluster-of-dots icon.","Particles are deprecated in 5.3 but fully functional."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add the emitter",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Icosphere</b>, <kbd>S</kbd>, <b>2</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A sphere floating 3 m above the floor." },
+    { t: "Add a particle system",
+      b: `Particle Properties ▸ + New.`,
+      see: "A big particle settings panel appears." },
+    { t: "Set the basics",
+      b: `Number <b>800</b>, Frame Start <b>1</b>, Frame End <b>1</b>, Lifetime <b>300</b>.`,
+      see: "No particles visible yet in solid view — press <kbd>Z</kbd> ▸ Material Preview to peek." },
+    { t: "Emit from the volume",
+      b: `Emission ▸ <b>Emit From: Volume</b>.`,
+      see: "Particles fill the inside of the sphere." },
+    { t: "Turn off gravity",
+      b: `Field Weights ▸ <b>Gravity</b> <b>0.0</b>. Velocity ▸ Normal <b>0</b>, Random <b>0.5</b>.`,
+      see: "Particles drift in random directions instead of falling." },
+    { t: "Add brownian drift",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Empty ▸ Plain Axes</b> in the middle of the scene.</li>
+          <li>Physics ▸ <b>Force Field ▸ Type: Brownian</b>, Strength <b>1.0</b>.</li>
+        </ol>`,
+      see: "The particles wander gently." },
+    { t: "Create the glow object",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>0.03</b>, <kbd>Enter</kbd>.</li>
+          <li><kbd>G</kbd>, <kbd>X</kbd>, <b>10</b>, <kbd>Enter</kbd>.</li>
+          <li>Material Properties ▸ New, Emission Color warm yellow, Emission Strength <b>20</b>.</li>
+        </ol>`,
+      see: "A tiny glowing sphere sitting off to the side." },
+    { t: "Instance the glow onto the particles",
+      b: `Select the emitter. Particle settings ▸ <b>Render As: Object</b> ▸ <b>Instance Object</b> → click the eyedropper → click the small glowing sphere.`,
+      see: "Hundreds of tiny glowing spheres floating in the air.",
+      warn: "If nothing shows, check <b>Render As</b> is not set to None." },
+    { t: "Hide the emitter",
+      b: `In the Outliner, click the <b>camera icon</b> next to the emitter sphere.`,
+      see: "The big sphere disappears from renders — only the fireflies remain." }
+  ],
+  finish: ["Scrub the Timeline to see the drift.","Try Render As: Collection.","Hard mode: animate the emitter for a moving swarm."]
+},
+
+{
+  id: "ocean", tab: "sim", emoji: "🌊",
+  title: "Ocean Waves",
+  category: "Modifiers", level: "Beginner", minutes: 8, version: "Blender 5.3.0",
+  summary: "Turn a flat plane into a rolling ocean in three clicks. The Ocean modifier is mathematically generated, not a simulation — but it's the fastest way to get convincing water.",
+  build: ["An ocean plane","Animated waves","A glassy material"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","This lives in Modifier Properties (blue wrench), not Physics."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add the plane",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Plane</b>, <kbd>S</kbd>, <b>10</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A 20 m square on the ground." },
+    { t: "Add the Ocean modifier",
+      b: `Modifier Properties ▸ <b>Add Modifier ▸ Physics ▸ Ocean</b>.`,
+      see: "The plane becomes churning ocean waves." },
+    { t: "Tune the waves",
+      b: `Resolution <b>12</b>, Wave Height <b>0.5</b>–<b>2</b>, Wave Scale <b>1</b>, Choppiness <b>1.2</b>.`,
+      see: "The waves change character as you drag the sliders." },
+    { t: "Animate the waves",
+      b: `<ol class="doit">
+          <li>Find <b>Time</b> in the Ocean modifier. Right-click it ▸ <b>Insert Keyframe</b>.</li>
+          <li>Go to frame <b>250</b>, set Time to <b>25</b>, right-click ▸ Insert Keyframe.</li>
+          <li>Press <kbd>Spacebar</kbd>.</li>
+        </ol>`,
+      see: "The waves roll across the surface." },
+    { t: "Water material",
+      b: `Material Properties ▸ New. Base Color deep teal, Transmission Weight <b>0.85</b>, Roughness <b>0.05</b>.`,
+      see: "A glossy, translucent ocean." },
+    { t: "Render a still",
+      b: `Position the camera low near the water, <kbd>Numpad 0</kbd> to look through it, <kbd>F12</kbd> to render.`,
+      see: "A cinematic ocean shot filling the frame." }
+  ],
+  finish: ["Try Ocean ▸ Spectrum for different seas.","Render with <kbd>Ctrl</kbd>+<kbd>F12</kbd>.","Hard mode: add a boat bobbing on top."]
+},
+
+{
+  id: "paint", tab: "sim", emoji: "👣",
+  title: "Footprint in Snow",
+  category: "Dynamic Paint", level: "Beginner", minutes: 12, version: "Blender 5.3.0",
+  summary: "Drag a footprint object across a snowy ground and leave a permanent trail. Dynamic Paint is Blender 5.3's built-in paint-on-surface system.",
+  build: ["A canvas plane","A brush object","An animated walk","A visible trail"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Dynamic Paint lives in Physics Properties.","The attribute name is still <b>dp_paintmap</b>."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add the snow plane",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Plane</b>, <kbd>S</kbd>, <b>5</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Dynamic Paint ▸ Canvas</b>. Canvas Type: <b>Surface</b>, Format Surface ticked, Surface Type: <b>Paint</b>.</li>
+        </ol>`,
+      see: "The plane is now ready to receive paint." },
+    { t: "Add the brush",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Icosphere</b>, <kbd>S</kbd>, <b>0.3</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>0.3</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Dynamic Paint ▸ Brush</b>.</li>
+        </ol>`,
+      see: "A small sphere above the ground with brush settings." },
+    { t: "Animate the brush walking",
+      b: `<ol class="doit">
+          <li>Frame <b>1</b>. Press <kbd>I</kbd> over the 3D Viewport ▸ Insert Keyframe (or right-click ▸ Insert Keyframe).</li>
+          <li>Frame <b>100</b>. <kbd>G</kbd>, <kbd>X</kbd>, <b>-6</b>, <kbd>Enter</kbd>. Insert Keyframe again.</li>
+        </ol>`,
+      see: "The sphere glides across the plane as you play." },
+    { t: "Bake the paint",
+      b: `Select the canvas. Physics ▸ Dynamic Paint ▸ <b>Cache Type: All</b> ▸ <b>Bake</b>.`,
+      see: "A dark trail appears wherever the brush passed." },
+    { t: "Show the trail in renders",
+      b: `Plane Material Properties ▸ New. Shader Editor (<kbd>Shift</kbd>+<kbd>F3</kbd>):
+        <ol class="doit">
+          <li>Add <b>Input ▸ Attribute</b>, Name = <b>dp_paintmap</b>.</li>
+          <li>Connect its <b>Color</b> output to the Principled's <b>Base Color</b>.</li>
+        </ol>`,
+      see: "The painted trail shows as a darker streak.",
+      warn: "The attribute name must be exactly <b>dp_paintmap</b>." },
+    { t: "Swap for a footprint shape",
+      b: `Delete the sphere, add a flattened Cube (S, X 0.4; S, Y 0.2; S, Z 0.05), add Dynamic Paint ▸ Brush, and re-animate.`,
+      see: "The trail now looks like footprints." }
+  ],
+  finish: ["Scrub the timeline to see the walk.","Render with <kbd>Ctrl</kbd>+<kbd>F12</kbd>.","Hard mode: two brushes offset for alternating footsteps."]
+},
+
+{
+  id: "fur", tab: "sim", emoji: "🐰",
+  title: "Fur Ball",
+  category: "Hair", level: "Beginner", minutes: 8, version: "Blender 5.3.0",
+  summary: "Cover a sphere in soft fur in about a minute. The classic hair particle system is deprecated in 5.3 but still fully functional — the fastest way to get a fuzzy creature.",
+  build: ["A hair particle system","Length and density control","A coloured fur material"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Hair lives in Particle Properties.","If you prefer the modern route: Shift+A ▸ Curves ▸ Empty Hair — but the old system still works."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add the fur ball",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>1</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>2</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A smooth sphere 2 m above the floor." },
+    { t: "Add a hair system",
+      b: `Particle Properties ▸ + New. Set top dropdown to <b>Hair</b>.`,
+      see: "The sphere is instantly covered in short hair.",
+      warn: "The panel may say 'deprecated'. Ignore it — the buttons still work." },
+    { t: "Set the count and length",
+      b: `Number <b>5000</b>, Hair Length <b>0.3</b>.`,
+      see: "The fur is dense and short." },
+    { t: "Add children",
+      b: `Children ▸ Display <b>5</b>, Render <b>10</b>, tick <b>Interpolated</b>.`,
+      see: "The fur is now soft and thick, not thin strands." },
+    { t: "Colour it",
+      b: `Material Properties ▸ New. Base Color warm brown, Roughness <b>0.7</b>.`,
+      see: "The sphere and all its fur turn brown." },
+    { t: "Comb it (optional)",
+      b: `Change the top-left dropdown from Object Mode to <b>Particle Edit</b>. Now the Comb brush works. Change back when done.`,
+      see: "You can brush the fur into any style." }
+  ],
+  finish: ["Scrub the timeline — fur is static.","Try a fuzzy cube.","Hard mode: Hair Dynamics for wiggle."]
+},
+
+{
+  id: "vase", tab: "sim", emoji: "🏺",
+  title: "Smash a Vase",
+  category: "Destruction", level: "Intermediate", minutes: 15, version: "Blender 5.3.0",
+  summary: "Break a vase into shards with the Cell Fracture extension, then give every shard a rigid body so the whole thing explodes on contact. In 5.3, Cell Fracture is an Extension.",
+  build: ["A shattered vase","Rigid body physics on every shard","A satisfying smash"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Cell Fracture is an Extension in 5.3 — installed from Get Extensions.","Combines Cell Fracture + Rigid Body."],
+  steps: [
+    { t: "Install the Cell Fracture extension",
+      b: `<ol class="doit">
+          <li><b>Edit ▸ Preferences</b>.</li>
+          <li>Click <b>Get Extensions</b> (Blender 5.3's new location, replacing Add-ons).</li>
+          <li>Search <b>cell fracture</b>. Click <b>Install</b>.</li>
+          <li>Close Preferences.</li>
+        </ol>`,
+      see: "Cell Fracture is now under <b>Object ▸ Quick Effects ▸ Cell Fracture</b>.",
+      warn: "If it doesn't appear, restart Blender once." },
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Build the vase",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cylinder</b>, <kbd>S</kbd>, <b>0.5</b>, <kbd>Enter</kbd>, <kbd>S</kbd>, <kbd>Z</kbd>, <b>2</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>1</b>, <kbd>Enter</kbd>.</li>
+          <li>Right-click ▸ <b>Shade Smooth</b>.</li>
+        </ol>`,
+      see: "A smooth tall vase." },
+    { t: "Fracture it",
+      b: `<ol class="doit">
+          <li>Select the vase. <kbd>Tab</kbd>, <kbd>A</kbd> to select all, <kbd>Tab</kbd> out.</li>
+          <li><b>Object ▸ Quick Effects ▸ Cell Fracture</b>.</li>
+          <li>In the bottom-left panel: Source Limit <b>0.2</b>, Number of Points <b>100</b>.</li>
+        </ol>`,
+      see: "The vase is now dozens of shards in the original shape." },
+    { t: "Add a passive floor",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Plane</b>, <kbd>S</kbd>, <b>5</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Rigid Body ▸ Type: Passive</b>.</li>
+        </ol>`,
+      see: "The floor is passive." },
+    { t: "Give every shard a rigid body",
+      b: `In the Outliner, expand the <b>cell fracture</b> collection. Click the first shard, <kbd>Shift</kbd>+click the last. Physics ▸ <b>Rigid Body ▸ Active</b>.`,
+      see: "All shards now have physics." },
+    { t: "Add a smasher ball",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ UV Sphere</b>, <kbd>S</kbd>, <b>0.6</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>6</b>, <kbd>Enter</kbd>.</li>
+          <li>Physics ▸ <b>Rigid Body ▸ Type: Active</b>.</li>
+        </ol>`,
+      see: "A sphere above the vase ready to drop." },
+    { t: "Bake and play",
+      b: `Scene Properties ▸ <b>Rigid Body World ▸ Cache ▸ Bake</b>. Press <kbd>Spacebar</kbd>.`,
+      see: "The ball drops, the vase shatters into shards on the floor." }
+  ],
+  finish: ["Render a still with <kbd>F12</kbd>.","Try Cell Fracture on a Suzanne monkey head.","Hard mode: animate the ball sideways."]
+},
+
+{
+  id: "boids", tab: "sim", emoji: "🐦",
+  title: "Flock of Birds",
+  category: "Particles", level: "Beginner", minutes: 10, version: "Blender 5.3.0",
+  summary: "Simulate a flock of birds with Boids particles. They flock, avoid, and swirl — complex motion from three simple rules.",
+  build: ["A flock swarm","Boids behaviour","Bird-shaped instances"],
+  before: ["Open Blender 5.3, <b>File ▸ New ▸ General</b>.","Boids lives in Particle Properties.","Emergent simulation — simple rules, complex motion."],
+  steps: [
+    { t: "Delete the cube", b: `Click the cube, <kbd>X</kbd>, <kbd>Enter</kbd>.`, see: "The cube is gone." },
+    { t: "Add the emitter",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Icosphere</b>, <kbd>S</kbd>, <b>2</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>Z</kbd>, <b>3</b>, <kbd>Enter</kbd>.</li>
+        </ol>`,
+      see: "A sphere floating mid-air." },
+    { t: "Add particles",
+      b: `Particle Properties ▸ + New. Number <b>300</b>, Lifetime <b>200</b>.`,
+      see: "Particles emit from the surface and fall." },
+    { t: "Switch to Boids",
+      b: `In the Physics dropdown, change <b>Newtonian</b> to <b>Boids</b>.`,
+      see: "Particles stop falling and cluster." },
+    { t: "Set flock behaviour",
+      b: `Tick <b>Flock</b>, <b>Separate</b>, <b>Follow</b>. Set Range <b>2.0</b>, Speed <b>2.0</b>.`,
+      see: "The flock swirls as a cohesive group.",
+      warn: "If they sit still, check the dropdown says Boids, and tick <b>Allow Flight</b>." },
+    { t: "Add a goal",
+      b: `In Boids settings, use the <b>Goal</b> section to reference the emitter itself.`,
+      see: "The flock stays near the emitter." },
+    { t: "Add a bird to instance",
+      b: `<ol class="doit">
+          <li><kbd>Shift</kbd>+<kbd>A</kbd> ▸ <b>Mesh ▸ Cone</b>, <kbd>S</kbd>, <b>0.08</b>, <kbd>Enter</kbd>, <kbd>R</kbd>, <kbd>Y</kbd>, <b>90</b>, <kbd>Enter</kbd>, <kbd>G</kbd>, <kbd>X</kbd>, <b>10</b>, <kbd>Enter</kbd>.</li>
+          <li>Material Properties ▸ New, dark grey.</li>
+        </ol>`,
+      see: "A tiny dark cone off to the side." },
+    { t: "Instance the bird",
+      b: `Select the emitter. Particle settings ▸ <b>Render As: Object</b> ▸ <b>Instance Object</b> → click the eyedropper → click the cone.`,
+      see: "Hundreds of tiny cones fly as a swirling flock.",
+      warn: "If they point the same way, that's normal — boids don't auto-rotate instances." },
+    { t: "Hide the emitter",
+      b: `Click the camera icon next to the emitter in the Outliner.`,
+      see: "Only the birds remain in renders." }
+  ],
+  finish: ["Scrub the Timeline to see the flock change.","Try Separate-only for scatter, Flock-only for clumps.","Hard mode: two flocks with opposing goals."]
+}
+
+];
+
+/* =========================================================================
+   3. STATE + STORAGE
+   ========================================================================= */
+
+const STORE_KEY = "simlab.tabs.blender53";
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; }
+catch (e) { progress = {}; }
+
+let currentTab = CATEGORIES[0].id;
+let currentId = TUTORIALS.find(t => t.tab === currentTab).id;
+let celebrated = {};
+
+const lastByTab = {};
+TUTORIALS.forEach(t => { if (!lastByTab[t.tab]) lastByTab[t.tab] = t.id; });
+
+function saveProgress() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); } catch (e) {}
+}
+function stepArr(id) {
+  if (!Array.isArray(progress[id])) progress[id] = [];
+  return progress[id];
+}
+function isDone(id, i) { return !!stepArr(id)[i]; }
+function doneCount(id) { return stepArr(id).filter(Boolean).length; }
+function toggleStep(id, i) { stepArr(id)[i] = !stepArr(id)[i]; saveProgress(); }
+function totalDone() { return TUTORIALS.reduce((s, t) => s + doneCount(t.id), 0); }
+function totalSteps() { return TUTORIALS.reduce((s, t) => s + t.steps.length, 0); }
+
+function tabStats(tabId) {
+  const tuts = TUTORIALS.filter(t => t.tab === tabId);
+  const total = tuts.reduce((s, t) => s + t.steps.length, 0);
+  const done = tuts.reduce((s, t) => s + doneCount(t.id), 0);
+  return { done, total };
+}
+
+/* =========================================================================
+   4. DOM REFS + HELPERS
+   ========================================================================= */
+
+const mainEl   = document.getElementById("main");
+const listEl   = document.getElementById("list");
+const tabEl    = document.getElementById("tabbar");
+const searchEl = document.getElementById("search");
+const sideLbl  = document.getElementById("sideLabel");
+const gpFill   = document.getElementById("gpFill");
+const toastEl  = document.getElementById("toast");
+const modal    = document.getElementById("modalBackdrop");
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+let toastTimer = null;
+function toast(msg) {
+  toastEl.innerHTML = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3200);
+}
+
+/* =========================================================================
+   5. RENDER — TABS
+   ========================================================================= */
+
+function renderTabs() {
+  tabEl.innerHTML = CATEGORIES.map(cat => {
+    const { done, total } = tabStats(cat.id);
+    const complete = total > 0 && done === total;
+    return `
+      <button class="tab ${cat.id === currentTab ? "active" : ""} ${complete ? "complete" : ""}" data-tab="${cat.id}">
+        <span class="tab-emoji">${cat.emoji}</span>
+        <span>${cat.label}</span>
+        <span class="tab-count">${done}/${total}</span>
+      </button>`;
+  }).join("");
+}
+
+/* =========================================================================
+   6. RENDER — SIDEBAR
+   ========================================================================= */
+
+function renderList() {
+  const q = searchEl.value.trim().toLowerCase();
+  const searching = q.length > 0;
+
+  let visible;
+  if (searching) {
+    visible = TUTORIALS.filter(t => {
+      const hay = (t.title + " " + t.category + " " + t.level + " " + t.summary).toLowerCase();
+      return hay.includes(q);
+    });
+    sideLbl.textContent = `Search results (${visible.length})`;
+  } else {
+    visible = TUTORIALS.filter(t => t.tab === currentTab);
+    const cat = CATEGORIES.find(c => c.id === currentTab);
+    sideLbl.textContent = cat ? cat.label : "Tutorials";
+  }
+
+  if (!visible.length) {
+    listEl.innerHTML = `<p class="empty">No tutorials match &ldquo;${escapeHtml(q)}&rdquo;.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = visible.map(t => {
+    const d = doneCount(t.id);
+    const n = t.steps.length;
+    const pct = Math.round((d / n) * 100);
+    const complete = d === n;
+    const tabInfo = CATEGORIES.find(c => c.id === t.tab);
+    const badge = searching && tabInfo ? ` · ${tabInfo.label}` : "";
+    return `
+      <button class="nav-item ${t.id === currentId ? "active" : ""}" data-id="${t.id}">
+        <span class="nav-emoji">${t.emoji}</span>
+        <span class="nav-main">
+          <span class="nav-title">${escapeHtml(t.title)}</span>
+          <span class="nav-meta">${escapeHtml(t.category)} · ${t.minutes} min · ${d}/${n}${badge}</span>
+          <span class="nav-bar"><i style="width:${pct}%"></i></span>
+        </span>
+        ${complete ? '<span class="nav-check">✓</span>' : ""}
+      </button>`;
+  }).join("");
+}
+
+/* =========================================================================
+   7. RENDER — TUTORIAL
+   ========================================================================= */
+
+function stepHTML(t, i, s) {
+  const done = isDone(t.id, i);
+  return `
+    <li class="step ${done ? "done" : ""}" data-step="${i}">
+      <button class="tick" data-tick="${i}" aria-label="Toggle step ${i + 1}" title="Mark step ${i + 1} complete">${done ? "✓" : ""}</button>
+      <div class="step-body">
+        <h4><span class="n">${i + 1}</span>${escapeHtml(s.t)}</h4>
+        <div class="txt">${s.b}</div>
+        ${s.see  ? `<div class="note see"><b>👁 What you should see</b>${s.see}</div>` : ""}
+        ${s.tip  ? `<div class="note tip"><b>💡 Tip</b>${s.tip}</div>` : ""}
+        ${s.warn ? `<div class="note warn"><b>⚠ If it didn't work</b>${s.warn}</div>` : ""}
+      </div>
+    </li>`;
+}
+
+function renderTutorial() {
+  const t = TUTORIALS.find(x => x.id === currentId);
+  if (!t) { mainEl.innerHTML = ""; return; }
+  const d = doneCount(t.id);
+  const n = t.steps.length;
+  const pct = Math.round((d / n) * 100);
+
+  const inTab = TUTORIALS.filter(x => x.tab === t.tab);
+  const idx = inTab.indexOf(t);
+  const prev = inTab[idx - 1];
+  const next = inTab[idx + 1];
+  const cat = CATEGORIES.find(c => c.id === t.tab);
+
+  mainEl.innerHTML = `
+    <article class="tut">
+      <header class="tut-head">
+        <div class="tut-emoji">${t.emoji}</div>
+        <div style="min-width:0">
+          <h1>${escapeHtml(t.title)}</h1>
+          <div class="chips">
+            <span class="chip">${cat ? cat.emoji + " " + cat.label : ""}</span>
+            <span class="chip lvl-${t.level.toLowerCase()}">${escapeHtml(t.level)}</span>
+            <span class="chip">⏱ ${t.minutes} min</span>
+            <span class="chip">${escapeHtml(t.version)}</span>
+            <span class="chip">${n} steps</span>
+          </div>
+        </div>
+      </header>
+
+      <p class="summary">${escapeHtml(t.summary)}</p>
+
+      <div class="grid2">
+        <section class="card">
+          <h3>🎯 What you'll build</h3>
+          <ul>${t.build.map(b => `<li>${b}</li>`).join("")}</ul>
+        </section>
+        <section class="card">
+          <h3>✅ Before you start</h3>
+          <ul>${t.before.map(b => `<li>${b}</li>`).join("")}</ul>
+        </section>
+      </div>
+
+      <div class="prog-line">
+        <div class="prog-bar"><i id="tutFill" style="width:${pct}%"></i></div>
+        <span id="tutCount">${d} / ${n} steps done</span>
+      </div>
+
+      <ol class="steps">
+        ${t.steps.map((s, i) => stepHTML(t, i, s)).join("")}
+      </ol>
+
+      <div class="finish">
+        <h3>🏁 You're done — now what?</h3>
+        <ul>${t.finish.map(f => `<li>${f}</li>`).join("")}</ul>
+      </div>
+
+      <div class="tutnav">
+        ${prev ? `<button class="btn" data-goto="${prev.id}">← ${prev.emoji} ${escapeHtml(prev.title)}</button>` : `<span></span>`}
+        ${next ? `<button class="btn" data-goto="${next.id}">${next.emoji} ${escapeHtml(next.title)} →</button>` : `<span></span>`}
+      </div>
+
+      <p class="hint">Use ← and → to switch tutorials in this tab · press / to search · progress saves automatically</p>
+    </article>
+  `;
+}
+
+/* =========================================================================
+   8. UPDATE PROGRESS
+   ========================================================================= */
+
+function updateGlobalProgress() {
+  const pct = Math.round((totalDone() / totalSteps()) * 100);
+  gpFill.style.width = pct + "%";
+}
+
+function updateTutorialProgress(t) {
+  const d = doneCount(t.id);
+  const n = t.steps.length;
+  const pct = Math.round((d / n) * 100);
+  const fill = document.getElementById("tutFill");
+  const count = document.getElementById("tutCount");
+  if (fill) fill.style.width = pct + "%";
+  if (count) count.textContent = `${d} / ${n} steps done`;
+}
+
+/* =========================================================================
+   9. NAVIGATION
+   ========================================================================= */
+
+function selectTab(tabId) {
+  currentTab = tabId;
+  searchEl.value = "";
+  const first = TUTORIALS.find(t => t.tab === tabId);
+  currentId = lastByTab[tabId] || (first ? first.id : null);
+  renderTabs();
+  renderList();
+  renderTutorial();
+  updateGlobalProgress();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function goTo(id) {
+  const t = TUTORIALS.find(x => x.id === id);
+  if (!t) return;
+  if (t.tab !== currentTab) {
+    currentTab = t.tab;
+    searchEl.value = "";
+  }
+  currentId = id;
+  lastByTab[currentTab] = id;
+  renderTabs();
+  renderList();
+  renderTutorial();
+  updateGlobalProgress();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function stepInTab(dir) {
+  const inTab = TUTORIALS.filter(x => x.tab === currentTab);
+  const idx = inTab.findIndex(x => x.id === currentId);
+  const nextIdx = idx + dir;
+  if (nextIdx >= 0 && nextIdx < inTab.length) {
+    goTo(inTab[nextIdx].id);
+  }
+}
+
+/* =========================================================================
+   10. EVENTS
+   ========================================================================= */
+
+tabEl.addEventListener("click", e => {
+  const btn = e.target.closest("[data-tab]");
+  if (!btn) return;
+  selectTab(btn.dataset.tab);
+});
+
+listEl.addEventListener("click", e => {
+  const btn = e.target.closest("[data-id]");
+  if (!btn) return;
+  goTo(btn.dataset.id);
+});
+
+mainEl.addEventListener("click", e => {
+  const tick = e.target.closest("[data-tick]");
+  if (tick) {
+    const t = TUTORIALS.find(x => x.id === currentId);
+    const i = Number(tick.dataset.tick);
+    toggleStep(t.id, i);
+
+    const li = tick.closest(".step");
+    const nowDone = isDone(t.id, i);
+    li.classList.toggle("done", nowDone);
+    tick.textContent = nowDone ? "✓" : "";
+
+    updateTutorialProgress(t);
+    updateGlobalProgress();
+    renderList();
+    renderTabs();
+
+    if (doneCount(t.id) === t.steps.length && !celebrated[t.id]) {
+      celebrated[t.id] = true;
+      toast(`${t.emoji} Tutorial complete — nice work!`);
+    }
+    return;
+  }
+
+  const go = e.target.closest("[data-goto]");
+  if (go) { goTo(go.dataset.goto); return; }
+});
+
+searchEl.addEventListener("input", renderList);
+
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+document.getElementById("cheatBtn").addEventListener("click", () => modal.classList.add("open"));
+document.getElementById("modalClose").addEventListener("click", () => modal.classList.remove("open"));
+modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Reset all progress on every tutorial? This cannot be undone.")) return;
+  progress = {};
+  celebrated = {};
+  saveProgress();
+  renderTabs();
+  renderList();
+  renderTutorial();
+  updateGlobalProgress();
+  toast("Progress reset — fresh start!");
+});
+
+document.addEventListener("keydown", e => {
+  const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if (e.key === "Escape") { modal.classList.remove("open"); return; }
+  if (e.key === "/" && !typing) { e.preventDefault(); searchEl.focus(); return; }
+  if (typing) return;
+
+  if (e.key === "ArrowRight") { e.preventDefault(); stepInTab(1); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); stepInTab(-1); }
+  else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    // Optional: switch tabs with Up/Down
+    e.preventDefault();
+    const idx = CATEGORIES.findIndex(c => c.id === currentTab);
+    const next = (idx + (e.key === "ArrowDown" ? 1 : -1) + CATEGORIES.length) % CATEGORIES.length;
+    selectTab(CATEGORIES[next].id);
+  }
+});
+
+/* =========================================================================
+   11. BOOT
+   ========================================================================= */
+
+renderTabs();
+renderList();
+renderTutorial();
+updateGlobalProgress();
+</script>
+</body>
+</html>
